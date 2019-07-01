@@ -1,0 +1,39 @@
+h1{
+    font-family: 'Aladin', cursive;
+    font-size: 5rem;
+   
+}
+
+.heading{
+    text-align: right;
+    padding:2%;
+    padding-right: 5%;
+    color:white;
+    background: #35e235;
+}
+
+.login{
+    text-align:center;
+    margin:5%;
+    
+}
+
+.btn-signup{
+    margin-top:2%;
+}
+
+@media (max-width:576px){
+    
+    .heading{
+        font-size: 3rem;
+        text-align: center;
+    }
+
+    .welcome-message{
+        font-size:1.5rem;
+    }
+
+    .login{
+        margin-top:30%;
+    }
+}
