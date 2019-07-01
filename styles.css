@@ -12,6 +12,11 @@ h1{
     background: #35e235;
 }
 
+.heading-link, .heading-link:hover{
+    color:white;
+    text-decoration: none;
+}
+
 .login{
     text-align:center;
     margin:5%;
