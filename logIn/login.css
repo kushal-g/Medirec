@@ -1,0 +1,42 @@
+h1{
+    font-family: 'Aladin', cursive;
+    font-size: 3rem;
+   
+}
+
+.heading{
+    text-align: right;
+    padding:2%;
+    padding-right: 5%;
+    color:white;
+    background: #35e235;
+}
+
+.heading-link, .heading-link:hover{
+    color:white;
+    text-decoration: none;
+}
+
+
+.card{
+    max-width: 30rem;
+    height:20rem;
+    margin: 0 auto;
+    margin-top: 4%;
+}
+
+.card-header{
+    padding-bottom:0;
+}
+
+.display-4{
+    font-size: 2rem;
+}
+
+.submit-btn-wrapper{
+    text-align: right;
+}
+
+.submit-btn{
+    margin-right:2%;
+}
