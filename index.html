@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <!-- site css -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/styles.css">
   <!-- font css -->
   <link href="https://fonts.googleapis.com/css?family=Aladin&display=swap" rel="stylesheet">
 </head>
@@ -23,9 +23,13 @@
       <h2 class="welcome-message">Welcome to Medirec</h2>
     </div>
     <div>Hope you're doing great today!</div>
-    <a href="logIn/logInPage.html"><button type="button" class="btn btn-info btn-lg btn-signup">LOG IN</button><br></a>
-    <a href="signUp/signUpPage.html"><button type="button" class="btn btn-outline-info btn-lg btn-signup">SIGN
-        UP</button></a>
+    <form action="/login" method="POST">
+      <input type="submit" class="btn btn-info btn-lg btn-signup" value="LOG IN"><br>
+    </form>
+
+    <form action="/signup" method="POST">
+      <input type="submit" class="btn btn-outline-info btn-lg btn-signup" value="SIGN UP">
+    </form>
   </div>
 
 
@@ -42,7 +46,7 @@
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
   </script>
   <!-- page js -->
-  <script src="index.js"></script>
+  <script src="js/index.js"></script>
 </body>
 
 </html>
