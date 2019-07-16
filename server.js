@@ -5,19 +5,18 @@ const request=require("request");
 const app=express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static('public'));
-
+app.set('view engine','ejs');
 
 app.get("/",(req,res)=>{
-    res.sendFile(__dirname+"/index.html");
-    
+    res.render("index");
 })
 
 app.get("/login",(req,res)=>{
-    res.sendFile(__dirname+"/logInPage.html");
+    res.render("logInPage");
 });
 
 app.get("/signup",(req,res)=>{
-    res.sendFile(__dirname+"/signUpPage.html");
+    res.render("signUpPage");
 });
 
 app.post("/login",(req,res)=>{

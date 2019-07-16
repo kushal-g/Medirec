@@ -10,12 +10,13 @@
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <!-- page css -->
   <link rel="stylesheet" href="css/signUpStyles.css">
+  <link rel="stylesheet" href="css/heading.css">
   <!-- font css -->
   <link href="https://fonts.googleapis.com/css?family=Aladin&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <h1 class="heading"><a href="/index.html" class="heading-link">MEDIREC</a></h1>
+  <%- include header.ejs%>
 
   <div class="content">
     <h2 class="display-4 page-heading">Sign Up!</h2>
@@ -176,7 +177,7 @@
         </div>
       </div>
       <p class="text-right">
-        <input type="submit" class="btn btn-success btn-lg submit-btn">
+        <input type="submit" class="btn btn-info btn-lg submit-btn">
       </p>
 
     </form>

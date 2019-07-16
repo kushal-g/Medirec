@@ -10,13 +10,14 @@
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <!--page css-->
     <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/heading.css">
     <!-- page fonts -->
     <link href="https://fonts.googleapis.com/css?family=Aladin&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <h1 class="heading"><a href="/index.html" class="heading-link">MEDIREC</a></h1>
+    <%- include header.ejs%>
     <div class="card bg-light">
         <div class="card-header">
             <h2 class="display-4">Welcome back!</h2>
@@ -27,7 +28,7 @@
             <form id="loginDetails">
                     <p class="card-text"></p><input type="email" class="form-control" placeholder="Email address"></p>
                     <p class="card-text"><input type="password" class="form-control" placeholder="Password"></p>
-                    <div class="submit-btn-wrapper"><input type="submit" class="btn btn-success submit-btn" value="Login"></div>
+                    <div class="submit-btn-wrapper"><input type="submit" class="btn btn-info submit-btn" value="Login"></div>
             </form>
             
         </div>
