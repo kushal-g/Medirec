@@ -20,7 +20,7 @@ let namePattern = /^[a-zA-Z]+$/
 let socSecPattern =/^[0-9]+$/;
 let phoneNoPattern =/^[0-9]{10,10}$/
 
-$('.signup-form').submit(e=>{
+$('form').submit(e=>{
     e.preventDefault();
     if(!namePattern.test($('#firstName').val())||!namePattern.test($('#lastName').val()))
     {
