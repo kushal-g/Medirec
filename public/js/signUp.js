@@ -7,97 +7,97 @@ $(document).ready(()=>{
 });
 
 //form validation
+const valid=()=>{
 
-let today=new Date();
-let dd=today.getDate();
-let mm=today.getMonth()+1;
-let yyyy=today.getFullYear();
-if(dd<10){dd='0'+dd};
-if(mm<10){mm='0'+mm};
-let max_date=`${yyyy}-${mm}-${dd}`;
+    let valid=true;
 
-let namePattern = /^[a-zA-Z]+$/
-let socSecPattern =/^[0-9]+$/;
-let phoneNoPattern =/^[0-9]{10,10}$/
-
-$('form').submit(e=>{
-    e.preventDefault();
-    if(!namePattern.test($('#firstName').val())||!namePattern.test($('#lastName').val()))
+    if(!validator.isAlpha($('#firstName').val())||!validator.isAlpha($('#lastName').val()))
     {
         $('.nameWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.nameWarning').css("display","none");
     }
 
-    if(!namePattern.test($('#nationality').val()))
+    if(!validator.isAlpha($('#nationality').val()))
     {
         $('.nationalityWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.nationalityWarning').css("display","none");
     }
 
-    if(!socSecPattern.test($('#socSec').val()))
+    if(!validator.isNumeric($('#socSec').val(),{no_symbols: true}))
     {
         $('.socSecWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.socSecWarning').css("display","none");
     }
     
-    if($("#maritalStatus").val()=='Marital Status')
+    if(validator.equals($('#maritalStatus').val(),'Marital Status'))
     {
         $('.maritalStatusWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.maritalStatusWarning').css("display","none");
     }
     
-    if($("#sex").val()=='Sex')
+    if(validator.equals($('#sex').val(),'Sex'))
     {
         $('.sexWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.sexWarning').css("display","none");
     }
-    if(!phoneNoPattern.test($("#phoneNo").val()))
+    if(!validator.isMobilePhone($('#phoneNo').val()))
     {   
         $('.phoneNoWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.phoneNoWarning').css("display","none");
     }
-    if($('#dob').val()>max_date)
+    if(validator.isAfter($('#dob').val()))
     {
         $('.dateWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.dateWarning').css("display","none");
     }
 
-    if(!($('#email').val()==$('#checkEmail').val()))
+    if(!(validator.equals($('#email').val(),$('#checkEmail').val())))
     {
         $('.emailWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.emailWarning').css("display","none");
     }
 
-    if(!($('#password').val()==$('#checkPassword').val()))
+    if(!(validator.equals($('#password').val(),$('#checkPassword').val())))
     {
         $('.passwordWarning').css("display","inline");
+        valid=false;
     }
     else
     {
         $('.passwordWarning').css("display","none");
     }
-});
+
+    return valid;
+}

@@ -2,156 +2,160 @@
 
 <div class="content">
   <h2 class="display-4 page-heading">Sign Up!</h2>
+  
+  <form action="/new-user" method="post"onsubmit="return valid()">
+   
+      <div class="container-fluid details">
+        <div class="row">
+          <div class="col-lg-6">
+            <h2>Personal Information</h2>
+            <!-- name -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" placeholder="First Name" id="firstName">
+                  <span class="nameWarning">Name can only have alphabets</span>
+                </div>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" placeholder="Last Name" id="lastName">
+                </div>
+              </div>
+            </div>
+            <!-- Nationality -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Nationality" id="nationality">
+                  <span class="nationalityWarning">Nationality can only have alphabets</span>
+                </div>
+              </div>
+            </div>
+            <!-- Social Security -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Social Security" id="socSec">
+                  <span class="socSecWarning">Social Security Number can only have digits</span>
+                </div>
+              </div>
+            </div>
+            <!-- Marital Status -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <div class="input-group">
+                    <select class="custom-select" id="maritalStatus">
+                      <option selected>Marital Status</option>
+                      <option value="single">Single</option>
+                      <option value="married">Married</option>
+                    </select>
+                  </div>
+                  <span class="maritalStatusWarning">Please pick your marital status</span>
+                </div>
+              </div>
+            </div>
+            <!-- Sex -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <div class="input-group">
+                    <select class="custom-select" id="sex">
+                      <option selected>Sex</option>
+                      <option value="m">Male</option>
+                      <option value="f">Female</option>
+                      <option value="o">Other</option>
+                    </select>
+                  </div>
+                  <span class="sexWarning">Please choose a sex</span>
+                </div>
+              </div>
+            </div>
+            <!-- Disability -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Disability" id="disability" value="">
+                </div>
+              </div>
+            </div>
+            <!-- Phone no -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Phone no" id="phoneNo">
+                  <span class="phoneNoWarning">Phone number should only have numbers and be 10 digits long</span>
+                </div>
+              </div>
+            </div>
+            <!-- Address -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Address Line 1" id="addressLine1">
+                </div>
+              </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Address Line 2" id="addressLine2">
+                </div>
+              </div>
+            </div>
+            <!-- Date of birth-->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-auto">
+                  <label for="dob">Date of Birth:</label>
+                </div>
+                <div class="col">
+                  <input type="date" id="dob" class="form-control">
+                </div>
+              </div>
+              <span class="dateWarning">Invalid Date</span>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <h2>Login</h2>
+            <!-- Email address -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="email" class="form-control" placeholder="Email address" id="email">
+                </div>
+              </div>
+            </div>
+            <!-- Confirm Email address -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="email" class="form-control" placeholder="Confirm email address" id="checkEmail">
+                  <span class="emailWarning">Email address don't match</span>
+                </div>
+              </div>
+            </div>
+            <!-- Password -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="password" class="form-control" placeholder="Password" id="password">
+                </div>
+              </div>
+            </div>
+            <!-- Confirm Password -->
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="password" class="form-control" placeholder="Confirm password" id="checkPassword">
+                  <span class="passwordWarning">Passwords don't match</span </div> </div> </div> </div> </div> </div> <p
+                    class="text-right">
+                  <input type="submit" class="btn btn-info btn-lg submit-btn">
+                  </p>
+    </form>
 
 
-  <form action="/new-user" method="post">
-    <div class="container-fluid details">
-      <div class="row">
-        <div class="col-lg-6">
-          <h2>Personal Information</h2>
-          <!-- name -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-sm-6">
-                <input type="text" class="form-control" placeholder="First Name" id="firstName" required>
-                <span class="nameWarning">Name can only have alphabets</span>
-              </div>
-              <div class="col-sm-6">
-                <input type="text" class="form-control" placeholder="Last Name" id="lastName" required>
-              </div>
-            </div>
-          </div>
-          <!-- Nationality -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="text" class="form-control" placeholder="Nationality" id="nationality" required>
-                <span class="nationalityWarning">Nationality can only have alphabets</span>
-              </div>
-            </div>
-          </div>
-          <!-- Social Security -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="text" class="form-control" placeholder="Social Security" id="socSec" required>
-                <span class="socSecWarning">Social Security Number can only have digits</span>
-              </div>
-            </div>
-          </div>
-          <!-- Marital Status -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <div class="input-group">
-                  <select class="custom-select" id="maritalStatus" required>
-                    <option selected>Marital Status</option>
-                    <option value="single">Single</option>
-                    <option value="married">Married</option>
-                  </select>
-                </div>
-                <span class="maritalStatusWarning">Please pick your marital status</span>
-              </div>
-            </div>
-          </div>
-          <!-- Sex -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <div class="input-group">
-                  <select class="custom-select" id="sex" required>
-                    <option selected>Sex</option>
-                    <option value="m">Male</option>
-                    <option value="f">Female</option>
-                    <option value="o">Other</option>
-                  </select>
-                </div>
-                <span class="sexWarning">Please choose a sex</span>
-              </div>
-            </div>
-          </div>
-          <!-- Disability -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="text" class="form-control" placeholder="Disability" id="disability" value="">
-              </div>
-            </div>
-          </div>
-          <!-- Phone no -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="text" class="form-control" placeholder="Phone no" id="phoneNo" required>
-                <span class="phoneNoWarning">Phone number should only have numbers and be 10 digits long</span>
-              </div>
-            </div>
-          </div>
-          <!-- Address -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="text" class="form-control" placeholder="Address Line 1" id="addressLine1" required>
-              </div>
-            </div>
-          </div>
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="text" class="form-control" placeholder="Address Line 2" id="addressLine2">
-              </div>
-            </div>
-          </div>
-          <!-- Date of birth-->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-auto">
-                <label for="dob">Date of Birth:</label>
-              </div>
-              <div class="col">
-                <input type="date" id="dob" class="form-control" required>
-              </div>
-            </div>
-            <span class="dateWarning">Invalid Date</span>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <h2>Login</h2>
-          <!-- Email address -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="email" class="form-control" placeholder="Email address" id="email" required>
-              </div>
-            </div>
-          </div>
-          <!-- Confirm Email address -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="email" class="form-control" placeholder="Confirm email address" id="checkEmail" required>
-                <span class="emailWarning">Email address don't match</span>
-              </div>
-            </div>
-          </div>
-          <!-- Password -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="password" class="form-control" placeholder="Password" id="password" required>
-              </div>
-            </div>
-          </div>
-          <!-- Confirm Password -->
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <input type="password" class="form-control" placeholder="Confirm password" id="checkPassword" required>
-                <span class="passwordWarning">Passwords don't match</span </div> </div> </div> </div> </div> </div> <p
-                  class="text-right">
-                <input type="submit" class="btn btn-info btn-lg submit-btn">
-                </p>
-  </form>
+  
 </div>
 
+<script src="bower_components/validator-js/validator.min.js"></script>
 <%- include('partials/footer',{pageJS:"js/signUp.js"})%>
