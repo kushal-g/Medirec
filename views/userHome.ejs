@@ -1,0 +1,21 @@
+<%- include('partials/header',{title:"Welcome!", pageCSS:"css/userHome.css"})%>
+
+<nav class="navbar navbar-expand-md sticky-top navbar-dark">
+    <a class="navbar-brand" href="#">Hi, <%= loggedInAccount.firstName %>!</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#options">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="options">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link active mr-2" href="#">Latest Prescription<span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link mr-2" href="#">Medical Records</a>
+            <a class="nav-item nav-link mr-2" href="#">Your Orders</a>
+            <a class="nav-item nav-link mr-2" href="#">Reminders</a>
+            <a class="nav-item nav-link mr-1" href="/logout">Log Out</a>
+        </div>
+    </div>
+</nav>
+
+
+<%- include('partials/footer',{pageJS:""})%>

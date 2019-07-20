@@ -2,25 +2,29 @@ const express=require("express");
 const bodyParser=require("body-parser");
 const request=require("request");
 const mongoose = require("mongoose");
+var logInCondition = false;
+var loggedInAccount;
 
-mongoose.connect("mongodb://localhost:27017/user-accounts",{useNewUrlParser:true});
+mongoose.connect("mongodb://localhost:27017/MedirecDB",{useNewUrlParser:true});
 
-const userSchema={
+const userSchema=new mongoose.Schema({
     firstName:String,
     lastName:String,
     nationality:String,
-    socSec:String,
+    IDno:String,
     maritalStatus:String,
     sex:String,
     disability:String,
-    phoneno: String,
+    phoneNo: String,
     addrLine1:String,
     addrLine2:String,
     dob:Date,
     email:String,
     password:String,
     doc_acc:Boolean
-};
+});
+
+const userAccount = mongoose.model('userAccount',userSchema);
 
 const app=express();
 app.use(bodyParser.urlencoded({extended:true}));
@@ -29,34 +33,84 @@ app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 app.set('view engine','ejs');
 
 app.get("/",(req,res)=>{
-    res.render("index");
+    if(logInCondition){
+        res.redirect("/home");
+    }else{
+        res.render("index");
+    }
 })
 
 app.get("/login",(req,res)=>{
-    res.render("logInPage");
+    res.render("logInPage",{noAccountMessage:""});
 });
 
 app.get("/signup",(req,res)=>{
-    res.render("signUpPage");
+    res.render("signUpPage",{accountExistsWarning:""});
 });
+
+app.get("/home",(req,res)=>{
+    if(logInCondition){
+        res.render("userHome.ejs",{loggedInAccount:loggedInAccount});
+    }else{
+        res.redirect("/");
+    }
+    
+});
+
+app.get("/logout",(req,res)=>{
+    logInCondition=false;
+    loggedInAccount=null;
+    res.redirect("/");
+})
 
 app.post("/login",(req,res)=>{
-    res.redirect("/login");
+
+     userAccount.findOne({email:req.body.inputEmail, password: req.body.inputPassword},(err,account)=>{
+         if(err){
+             console.log(err);
+         }else{
+             if(account==null){
+                res.render("logInPage",{noAccountMessage:"No such account exists"});
+             }else{
+                 logInCondition=true;
+                 loggedInAccount=account;
+                 res.redirect("/home");
+             }
+         }
+     })
 });
 
-app.post("/signup",(req,res)=>{
-    res.redirect("/signup");
-});
+app.post("/signup", (req, res) => {
+    const user_data = req.body;
+    user_data.doc_acc = false;
+    let check1=false;
+    let check2=false;
+    //check if account already exists by checking identity card no, email address
+    
 
-app.post("/landing-page",(req,res)=>{
-     //get email pass from db and log in user
-});
+    userAccount.findOne({$or:[{email: user_data.email},{IDno: user_data.IDno}]}, (err, foundAccount) => {
+        if (err) {
+            console.log(err);
+        } else {
+            if (foundAccount) {
+                console.log("Account already exists");
+                res.render("signUpPage",{accountExistsWarning:"Account with that identity card or email address already exists"})
+            } else {
+                const newUser = new userAccount(user_data);
+                newUser.save(err => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("Successfully added");
+                        res.render("signUpPage2");
+                    }
+                });
+            }
+        }
+    });
 
-app.post("/new-user",(req,res)=>{
-    //insert entry into database
-    console.log("Hi");
+    
 });
-
 
 app.listen(3000,()=>{
     console.log("Server running at port 3000");

@@ -31,14 +31,14 @@ const valid=()=>{
         $('.nationalityWarning').css("display","none");
     }
 
-    if(!validator.isNumeric($('#socSec').val(),{no_symbols: true}))
+    if(!validator.isNumeric($('#IDno').val(),{no_symbols: true}))
     {
-        $('.socSecWarning').css("display","inline");
+        $('.IDnoWarning').css("display","inline");
         valid=false;
     }
     else
     {
-        $('.socSecWarning').css("display","none");
+        $('.IDnoWarning').css("display","none");
     }
     
     if(validator.equals($('#maritalStatus').val(),'Marital Status'))

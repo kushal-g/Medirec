@@ -1,0 +1,11 @@
+h1{
+    margin-bottom:0;
+}
+
+.navbar{
+    background-color:#03312E;
+}
+
+.navbar-collapse{
+    flex-direction: row-reverse;
+}

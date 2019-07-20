@@ -3,7 +3,7 @@
 <div class="content">
   <h2 class="display-4 page-heading">Sign Up!</h2>
   
-  <form action="/new-user" method="post"onsubmit="return valid()">
+  <form action="/signup" method="post"onsubmit="return valid()">
    
       <div class="container-fluid details">
         <div class="row">
@@ -13,11 +13,11 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col-sm-6">
-                  <input type="text" class="form-control" placeholder="First Name" id="firstName">
+                  <input type="text" class="form-control" placeholder="First Name" id="firstName" name="firstName" required>
                   <span class="nameWarning">Name can only have alphabets</span>
                 </div>
                 <div class="col-sm-6">
-                  <input type="text" class="form-control" placeholder="Last Name" id="lastName">
+                  <input type="text" class="form-control" placeholder="Last Name" id="lastName" name="lastName" required>
                 </div>
               </div>
             </div>
@@ -25,7 +25,7 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="text" class="form-control" placeholder="Nationality" id="nationality">
+                  <input type="text" class="form-control" placeholder="Nationality" id="nationality" name="nationality" required>
                   <span class="nationalityWarning">Nationality can only have alphabets</span>
                 </div>
               </div>
@@ -34,8 +34,8 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="text" class="form-control" placeholder="Social Security" id="socSec">
-                  <span class="socSecWarning">Social Security Number can only have digits</span>
+                  <input type="text" class="form-control" placeholder="Identity Card Number" id="IDno" name="IDno" required>
+                  <span class="IDnoWarning">Identity Card Number can only have digits</span>
                 </div>
               </div>
             </div>
@@ -44,7 +44,7 @@
               <div class="row">
                 <div class="col">
                   <div class="input-group">
-                    <select class="custom-select" id="maritalStatus">
+                    <select class="custom-select form-control" id="maritalStatus" name="maritalStatus">
                       <option selected>Marital Status</option>
                       <option value="single">Single</option>
                       <option value="married">Married</option>
@@ -59,7 +59,7 @@
               <div class="row">
                 <div class="col">
                   <div class="input-group">
-                    <select class="custom-select" id="sex">
+                    <select class="custom-select form-control" id="sex" name="sex">
                       <option selected>Sex</option>
                       <option value="m">Male</option>
                       <option value="f">Female</option>
@@ -74,7 +74,7 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="text" class="form-control" placeholder="Disability" id="disability" value="">
+                  <input type="text" class="form-control" placeholder="Disability" id="disability" name="disability" value="">
                 </div>
               </div>
             </div>
@@ -82,7 +82,7 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="text" class="form-control" placeholder="Phone no" id="phoneNo">
+                  <input type="text" class="form-control" placeholder="Phone no" id="phoneNo" name="phoneNo" required>
                   <span class="phoneNoWarning">Phone number should only have numbers and be 10 digits long</span>
                 </div>
               </div>
@@ -91,14 +91,14 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="text" class="form-control" placeholder="Address Line 1" id="addressLine1">
+                  <input type="text" class="form-control" placeholder="Address Line 1" id="addrLine1" name="addrLine1" required>
                 </div>
               </div>
             </div>
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="text" class="form-control" placeholder="Address Line 2" id="addressLine2">
+                  <input type="text" class="form-control" placeholder="Address Line 2" id="addrLine2" name="addrLine2">
                 </div>
               </div>
             </div>
@@ -109,7 +109,7 @@
                   <label for="dob">Date of Birth:</label>
                 </div>
                 <div class="col">
-                  <input type="date" id="dob" class="form-control">
+                  <input type="date" id="dob" class="form-control" name="dob" required>
                 </div>
               </div>
               <span class="dateWarning">Invalid Date</span>
@@ -121,7 +121,7 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="email" class="form-control" placeholder="Email address" id="email">
+                  <input type="email" class="form-control" placeholder="Email address" id="email" name="email" required>
                 </div>
               </div>
             </div>
@@ -129,7 +129,7 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="email" class="form-control" placeholder="Confirm email address" id="checkEmail">
+                  <input type="email" class="form-control" placeholder="Confirm email address" id="checkEmail" required>
                   <span class="emailWarning">Email address don't match</span>
                 </div>
               </div>
@@ -138,7 +138,7 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="password" class="form-control" placeholder="Password" id="password">
+                  <input type="password" class="form-control" placeholder="Password" id="password" name="password" required>
                 </div>
               </div>
             </div>
@@ -146,11 +146,24 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="password" class="form-control" placeholder="Confirm password" id="checkPassword">
-                  <span class="passwordWarning">Passwords don't match</span </div> </div> </div> </div> </div> </div> <p
-                    class="text-right">
-                  <input type="submit" class="btn btn-info btn-lg submit-btn">
-                  </p>
+                  <input type="password" class="form-control" placeholder="Confirm password" id="checkPassword" required>
+                  <span class="passwordWarning">Passwords don't match</span> 
+                </div> 
+              </div> 
+            </div>
+            <div class="container-fluid">
+                <div class="row">
+                  <div class="col">
+                    <span class="accountExistsWarning"><%= accountExistsWarning %></span>
+                  </div>
+                </div>
+              </div> 
+          </div> 
+        </div> 
+      </div> 
+      <p class="text-right">
+        <input type="submit" class="btn btn-info btn-lg submit-btn">
+      </p>
     </form>
 
 

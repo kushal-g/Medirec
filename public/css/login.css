@@ -23,13 +23,12 @@
     margin-right:2%;
 }
 
+.noAccountWarning{
+    color:red;
+}
+
 @media (max-width:576px){
     
-    .heading{
-        font-size: 3rem;
-        text-align: center;
-    }
-
     .card{
         max-width: 20rem;
         height:20rem;
