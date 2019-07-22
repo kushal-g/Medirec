@@ -5,7 +5,10 @@ const mongoose = require("mongoose");
 var logInCondition = false;
 var loggedInAccount;
 
-mongoose.connect("mongodb://localhost:27017/MedirecDB",{useNewUrlParser:true});
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.connect("mongodb://localhost:27017/MedirecDB");
+
 
 const userSchema=new mongoose.Schema({
     firstName:String,
@@ -121,9 +124,13 @@ app.post("/new-user-settings",(req,res)=>{
         autoOrderOn:("autoOrder" in req.body)
     };
     console.log(req.body);
-    userAccount.updateOne({_id:req.body.accountID},{settings:userSettings},err=>{
+    userAccount.findOneAndUpdate({_id:req.body.accountID},{settings:userSettings},{new:true},(err,foundAccount)=>{
         if(err){
             console.log(err);
+        }else{
+            logInCondition = true;
+            loggedInAccount = foundAccount;
+            res.render("allSet");
         }
     })
 
