@@ -21,7 +21,11 @@ const userSchema=new mongoose.Schema({
     dob:Date,
     email:String,
     password:String,
-    doc_acc:Boolean
+    doc_acc:Boolean,
+    settings:{
+        remindersOn:Boolean,
+        autoOrderOn:Boolean
+    }
 });
 
 const userAccount = mongoose.model('userAccount',userSchema);
@@ -63,6 +67,7 @@ app.get("/logout",(req,res)=>{
     res.redirect("/");
 })
 
+
 app.post("/login",(req,res)=>{
 
      userAccount.findOne({email:req.body.inputEmail, password: req.body.inputPassword},(err,account)=>{
@@ -83,8 +88,6 @@ app.post("/login",(req,res)=>{
 app.post("/signup", (req, res) => {
     const user_data = req.body;
     user_data.doc_acc = false;
-    let check1=false;
-    let check2=false;
     //check if account already exists by checking identity card no, email address
     
 
@@ -97,21 +100,34 @@ app.post("/signup", (req, res) => {
                 res.render("signUpPage",{accountExistsWarning:"Account with that identity card or email address already exists"})
             } else {
                 const newUser = new userAccount(user_data);
+                console.log(newUser);
                 newUser.save(err => {
                     if (err) {
                         console.log(err);
                     } else {
                         console.log("Successfully added");
-                        res.render("signUpPage2");
+                        res.render("signUpPage2",{accountID:newUser._id});
+                        
                     }
                 });
             }
         }
     });
-
-    
 });
 
+app.post("/new-user-settings",(req,res)=>{
+    const userSettings={
+        remindersOn:("reminders" in req.body),
+        autoOrderOn:("autoOrder" in req.body)
+    };
+    console.log(req.body);
+    userAccount.updateOne({_id:req.body.accountID},{settings:userSettings},err=>{
+        if(err){
+            console.log(err);
+        }
+    })
+
+})
 app.listen(3000,()=>{
     console.log("Server running at port 3000");
 })

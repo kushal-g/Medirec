@@ -1,3 +1,35 @@
-<%- include('partials/header',{title:"Sign Up!", pageCSS:""})%>
+<%- include('partials/header',{title:"Sign Up!", pageCSS:"css/signUpPage2.css"})%>
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.0.0/css/bootstrap-switch-button.min.css" rel="stylesheet">  
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.0.0/js/bootstrap-switch-button.min.js"></script>
+
+<div class="card bg-light">
+        <div class="card-body">
+            <form action="new-user-settings" method="post">
+                    <input type="hidden" id="accountID" name="accountID" value=<%= accountID %>>
+                    <div class="row">
+                        <div class="col-9">
+                                Should we remind you to take your medicines?
+                        </div>
+                        <div class="col">
+                                <input type="checkbox" name="reminders" data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yesss" data-offlabel="No" checked>
+                        </div>
+                    </div>
+                    <div class="row">
+                            <div class="col-9">
+                                   Should we automatically order your medicines?
+                            </div>
+                            <div class="col">
+                                <input type="checkbox" name="autoOrder" data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yesss" data-offlabel="No" checked>
+                                </div>
+                    </div>
+                    <div class="row h-100">
+                        <div class="col">
+                                <input type="submit" class="btn btn-info submit-btn form-control" value="Next">
+                        </div>
+                    </div>
+            
+            </form>
+        </div>
+</div>
 
 <%- include('partials/footer',{pageJS:""})%>
