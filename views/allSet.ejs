@@ -2,13 +2,15 @@
 <script src="https://kit.fontawesome.com/2e328f1e9e.js"></script>
 
 <div class="content">
-    <i class="fas fa-check fa-7x"></i>
-    <h2>You're all set!</h2>
-    <form action="/" method="get">
-        <input class="btn btn-info btn-lg mt-4"type="submit" value="Proceed to your account">
-    </form>
+    <i class="fas fa-check"></i>
+    <div class="content-child">
+        <h2>You're all set!</h2>
+        <form action="/" method="get">
+            <input class="btn btn-info btn-lg mt-4" type="submit" value="Proceed to your account">
+        </form>
+    </div>
 </div>
 
 
 
-<%- include('partials/footer',{pageJS:""})%>
+<%- include('partials/footer',{pageJS:"js/allSet.js"})%>
