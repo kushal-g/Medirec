@@ -5,36 +5,75 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#options">
         <span class="navbar-toggler-icon"></span>
     </button>
-
+    
     <div class="collapse navbar-collapse" id="options">
-        <div class="navbar-nav">
-            <a class="nav-item nav-link active mr-2" href="#">Your patients<span class="sr-only">(current)</span></a>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-                    Add a patient
-                </a>
+        <ul class="nav navbar-nav mb-3" role="tablist">
+
+            <li class="nav-item mt-2">
+                <a class="nav-link active" data-toggle="pill" href="#patients" role="tab">Your Patients</a>
+            </li>
+
+            <li class="nav-item dropdown mt-2">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Add a patient</a>
                 <div class="dropdown-menu p-3 mt-2">
-                   <form class="form-inline">
-                       <input type="search" class="form-control mb-2" placeholder="Search"><input type="submit" class="btn btn-info btn-sm">
-                   </form>
+                    <form class="form-inline" action="/patient-search" method=>
+                        <input type="search" class="form-control mb-2" placeholder="Search"><input type="submit" class="btn btn-info btn-sm">
+                    </form>
                 </div>
             </li>
-            
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-                  Keep yourself in check too!
-                </a>
+
+            <li class="nav-item dropdown mt-2">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Keep yourself in check too!</a>
                 <div class="dropdown-menu mt-2">
-                    <a class="dropdown-item" href="#">Your Medical Records</a>
-                    <a class="dropdown-item" href="#">Your Orders</a>
-                    <a class="dropdown-item" href="#">Your Reminders</a>
+                    <a class="dropdown-item" data-toggle="tab" role="tab" href="#medRec">Your Medical Records</a>
+                    <a class="dropdown-item" data-toggle="tab" role="tab" href="#orders">Your Orders</a>
+                    <a class="dropdown-item" data-toggle="tab" role="tab" href="#reminders">Your Reminders</a>
                 </div>
             </li>
-            
-            <a class="nav-item nav-link mr-1" href="/logout">Log Out</a>
-        </div>
+
+            <li class="nav-item mt-2">
+                <a class="nav-link" href="/logout" role="tab">Log Out</a>
+            </li>
+                 
+        </ul>
     </div>
 </nav>
 
 
-<%- include('partials/footer',{pageJS:""})%>
+<div class="tab-content">
+    
+    <div class="tab-pane fade show active" id="patients" role="tabpanel">
+
+        <div class="card">
+            <ul class="list-group list-group-flush">
+                <% for(let i=0;i<patientsList.length;i++){ %>
+                    <li class="list-group-item"><%= patientsList[i].firstName %> <%= patientsList[i].lastName %></li>
+                <% } %>
+            
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="medRec" role="tabpanel">
+        Medical Records
+
+
+
+    </div>
+    <div class="tab-pane fade" id="orders" role="tabpanel">
+        Your Orders
+
+
+
+    </div>
+    <div class="tab-pane fade" id="reminders" role="tabpanel">
+        Reminders
+
+
+
+
+    </div>
+</div>
+
+<%- include('partials/footer',{pageJS:"js/docHome.js"})%>

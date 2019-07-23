@@ -28,7 +28,8 @@ const userSchema=new mongoose.Schema({
     settings:{
         remindersOn:Boolean,
         autoOrderOn:Boolean
-    }
+    },
+    assigned_doctor_id:[String]
 });
 
 const userAccount = mongoose.model('userAccount',userSchema);
@@ -60,7 +61,13 @@ app.get("/home",(req,res)=>{
         if(!loggedInAccount.doc_acc){
             res.render("userHome.ejs",{loggedInAccount:loggedInAccount});
         }else{
-            res.render("docHome.ejs",{loggedInAccount:loggedInAccount});
+           userAccount.find({assigned_doctor_id:loggedInAccount._id},(err,foundAccounts)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:foundAccounts});
+                }
+           });
         }
         
     }else{
