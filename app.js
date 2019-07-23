@@ -57,7 +57,12 @@ app.get("/signup",(req,res)=>{
 
 app.get("/home",(req,res)=>{
     if(logInCondition){
-        res.render("userHome.ejs",{loggedInAccount:loggedInAccount});
+        if(!loggedInAccount.doc_acc){
+            res.render("userHome.ejs",{loggedInAccount:loggedInAccount});
+        }else{
+            res.render("docHome.ejs",{loggedInAccount:loggedInAccount});
+        }
+        
     }else{
         res.redirect("/");
     }

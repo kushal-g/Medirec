@@ -9,3 +9,7 @@ h1{
 .navbar-collapse{
     flex-direction: row-reverse;
 }
+
+.patientSearchBar{
+    margin-left: 77%
+}
