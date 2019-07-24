@@ -146,6 +146,31 @@ app.post("/new-user-settings",(req,res)=>{
         }
     })
 
+});
+
+app.post("/home",(req,res)=>{
+    const names=req.body.searchQuery.split(" ");
+    if(names.length==1)
+    {
+        userAccount.find({$or:[{firstName:names[0]},{lastName:names[0]}]},(err,foundAccounts)=>{
+            if(err){
+                console.log(err);
+            }else{
+                console.log(foundAccounts);
+            }
+        });
+    }
+    else if(names.length=2) 
+    {
+        userAccount.find({$or:[{$and:[{firstName:names[0]},{lastName:names[1]}]},{$and:[{firstName:names[1]},{lastName:names[0]}]}]},(err,foundAccounts)=>{
+            if(err){
+                console.log(err);
+            }else{
+                console.log(foundAccounts);
+            }
+        })
+    }
+
 })
 app.listen(3000,()=>{
     console.log("Server running at port 3000");
