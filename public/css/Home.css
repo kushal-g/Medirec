@@ -15,3 +15,11 @@ h1{
     margin-left: 77%
 }
 
+.img-add{
+    width:20px;
+}
+
+.img-add:hover{
+    background-color: yellow;
+    border-radius: 50%;
+}
