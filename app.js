@@ -4,6 +4,7 @@ const request=require("request");
 const mongoose = require("mongoose");
 var logInCondition = false;
 var loggedInAccount;
+var patientsList;
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
@@ -65,7 +66,8 @@ app.get("/home",(req,res)=>{
                 if(err){
                     console.log(err);
                 }else{
-                    res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:foundAccounts});
+                    patientsList=foundAccounts;
+                    res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:patientsList,jScript:"js/docHome.js",result:""});
                 }
            });
         }
@@ -73,7 +75,6 @@ app.get("/home",(req,res)=>{
     }else{
         res.redirect("/");
     }
-    
 });
 
 app.get("/logout",(req,res)=>{
@@ -156,7 +157,7 @@ app.post("/home",(req,res)=>{
             if(err){
                 console.log(err);
             }else{
-                console.log(foundAccounts);
+                res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:patientsList,jScript:"js/docHomeSearch.js",result:foundAccounts});
             }
         });
     }
@@ -166,7 +167,7 @@ app.post("/home",(req,res)=>{
             if(err){
                 console.log(err);
             }else{
-                console.log(foundAccounts);
+                res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:patientsList,jScript:"js/docHomeSearch.js",result:foundAccounts});
             }
         })
     }
