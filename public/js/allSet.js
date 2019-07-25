@@ -1,6 +1,6 @@
 
 const animation_check=callback=>{
-    $('.fas').animate({ deg: 720,},{duration: 1200,step: function(now) {
+    $('.check').animate({ deg: 720,},{duration: 1200,step: function(now) {
         $(this).css({ transform: 'rotate(' + now + 'deg)' });
         }
     });
