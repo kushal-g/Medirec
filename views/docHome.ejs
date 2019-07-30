@@ -71,7 +71,10 @@
                                 <li class="list-group-item"><%= result[i].firstName %> <%= result[i].lastName %></li>
                             </div>
                             <div class="col-auto my-auto">
-                                <input type="image" class="img-add" src="images/add.png" alt="+">
+                                <form action="/home/addPatient" method="post">
+                                    <input type="hidden" name="patient_id" value= <%= result[i]._id %> >
+                                    <input type="image" class="img-add" src="images/add.png" alt="+">
+                                </form>
                             </div>
                         </div>
                         <% } %>

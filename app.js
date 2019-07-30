@@ -30,7 +30,8 @@ const userSchema=new mongoose.Schema({
         remindersOn:Boolean,
         autoOrderOn:Boolean
     },
-    assigned_doctor_id:[String]
+    assigned_doctor_id:[String],
+    docAssignment_req:[String]
 });
 
 const userAccount = mongoose.model('userAccount',userSchema);
@@ -172,7 +173,16 @@ app.post("/home",(req,res)=>{
         })
     }
 
-})
+});
+
+app.post("/home/addPatient",(req,res)=>{
+    console.log(req.body);
+    userAccount.updateOne({_id:req.body.patient_id},{$push:{docAssignment_req:loggedInAccount._id}},(err)=>{
+        if(err){
+            console.log(err);
+        }
+    });
+});
 app.listen(3000,()=>{
     console.log("Server running at port 3000");
-})
+});
