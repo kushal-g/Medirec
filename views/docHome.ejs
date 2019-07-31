@@ -50,9 +50,6 @@
                     <h5>Your Patients</h5>
                 </div>
             <ul class="list-group list-group-flush">
-                <% for(let i=0;i<patientsList.length;i++){ %>
-                    <li class="list-group-item"><%= patientsList[i].firstName %> <%= patientsList[i].lastName %></li>
-                <% } %>
             
             </ul>
         </div>
@@ -65,16 +62,19 @@
                 </div>
                 <div class="container-fluid">
                     <ul class="list-group list-group-flush">
-                        <% for(let i=0;i<result.length;i++){ %>
+                        
                         <div class="row">          
                             <div class="col">
-                                <li class="list-group-item"><%= result[i].firstName %> <%= result[i].lastName %></li>
+                               Search Result1
                             </div>
                             <div class="col-auto my-auto">
-                                <input type="image" class="img-add" src="images/add.png" alt="+">
+                                <form action="/home/addPatient" method="post">
+                                    <input type="hidden" name="patient_id" value="" >
+                                    <input type="image" class="img-add" src="images/add.png" alt="+">
+                                </form>
                             </div>
                         </div>
-                        <% } %>
+            
                     </ul>
                 </div>
         </div>

@@ -79,7 +79,7 @@ const valid=()=>{
         $('.dateWarning').css("display","none");
     }
 
-    if(!(validator.equals($('#email').val(),$('#checkEmail').val())))
+    if(!(validator.equals($('#username').val(),$('#checkEmail').val())))
     {
         $('.emailWarning').css("display","inline");
         valid=false;

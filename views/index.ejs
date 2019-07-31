@@ -1,14 +1,60 @@
 <%- include('partials/header', {title:'Medirec', pageCSS:"css/styles.css"}) %>
 
-  <div class="login">
-    <div>
-      <h2 class="welcome-message">Welcome to Medirec</h2>
-    </div>
-    <div>Hope you're doing great today!</div>
-    <form method="GET">
-      <input type="submit" class="btn btn-info btn-lg btn-signup" value="LOG IN" formaction="/login"><br>
-      <input type="submit" class="btn btn-outline-info btn-lg btn-signup" value="SIGN UP" formaction="/signup">
-    </form>
+<!-- Complete dont have an account? Sign in link-->
+
+<link rel="stylesheet" href="css/bootstrap-social.css">
+<div class="login mx-auto">
+  <div>
+    <h2 class="welcome-message">Welcome to Medirec</h2>
   </div>
-  
+  <div>
+    Hope you're doing great today!
+  </div>
+  <div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col sign-in-heading">
+            <h4>Sign In!</h4>
+        </div>
+        
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <form action="/login" method="post">
+          <input class="form-control" type="email" placeholder="Email" name="username">
+          <input class="form-control" type="password" placeholder="Password" name="password">
+          <div class="container-fluid pl-0">
+            <div class="row">
+              <div class="col-4 pl-0">
+                <input class="btn btn-info mt-2 ml-3" type="submit" value="Sign In">
+              </div>
+              <div class="col-8 pr-1 pt-1">
+                
+                  Don't have an account? <br>
+                  <a href="/signup">Just sign up!</a>
+              </div>
+            </div>
+            
+          </div>
+          
+        </form>
+      </div>
+      <div class="col-md-6">
+       
+            <div class="button">
+                <a class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
+                    <span class="fab fa-google"></span> Sign in with Google
+                </a>
+            </div>
+            <div class="button mt-2">
+              <a class="btn btn-block btn-social btn-facebook" href="/auth/facebook" role="button">
+                  <span class="fab fa-facebook-square"></span> Sign in with Facebook
+              </a>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <%- include('partials/footer',{pageJS:"js/index.js"})%>

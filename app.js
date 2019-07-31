@@ -1,17 +1,39 @@
+require('dotenv').config();
 const express=require("express");
 const bodyParser=require("body-parser");
 const request=require("request");
 const mongoose = require("mongoose");
-var logInCondition = false;
-var loggedInAccount;
-var patientsList;
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose=require("passport-local-mongoose");
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const findOrCreate=require("mongoose-findorcreate");
+var _ = require('lodash');
+
+const app=express();
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static(__dirname+'/public'));
+app.use('/bower_components',  express.static(__dirname + '/bower_components'));
+app.use(session({
+    secret:process.env.SECRET_STRING,
+    resave:false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize()); //initializes passport
+app.use(passport.session());    //begins session
+
+app.set('view engine','ejs');
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 mongoose.connect("mongodb://localhost:27017/MedirecDB");
 
 
 const userSchema=new mongoose.Schema({
+    googleID:String,
+    username: String,
     firstName:String,
     lastName:String,
     nationality:String,
@@ -22,157 +44,196 @@ const userSchema=new mongoose.Schema({
     phoneNo: String,
     addrLine1:String,
     addrLine2:String,
-    dob:Date,
-    email:String,
-    password:String,
+    dob:String,
     doc_acc:Boolean,
     settings:{
         remindersOn:Boolean,
-        autoOrderOn:Boolean
+        autoOrderOn:Boolean 
     },
-    assigned_doctor_id:[String]
+    assigned_doctor_id:[String],
+    docAssignment_req:[String]
 });
 
-const userAccount = mongoose.model('userAccount',userSchema);
+userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(findOrCreate);
 
-const app=express();
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(express.static(__dirname+'/public'));
-app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-app.set('view engine','ejs');
+const User = mongoose.model('userAccount',userSchema);
+
+passport.use(User.createStrategy());
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/google/medirec"
+    },
+    function(accessToken, refreshToken, profile, cb) {
+
+        request({uri:"https://people.googleapis.com/v1/people/me", headers:{Authorization:` Bearer ${accessToken}`},qs:{personFields:"addresses,birthdays,genders,phoneNumbers"}},(err,response,body)=>{
+            if(err){
+                console.log(err);
+            }else{
+                const googleJSONProfile = JSON.parse(body);              
+                User.findOne({username:profile.emails[0].value},(err,user)=>{
+                    if(err){
+                        return cb(err);
+                    }
+                    if(!user){
+                        user = new User({
+                            username:profile.emails[0].value,
+                            googleID: profile.id,
+                            firstName:_.capitalize(profile.name.givenName), 
+                            lastName:_.capitalize(profile.name.familyName),
+                            sex:googleJSONProfile.genders[0].value
+                        });
+
+                        user.save(err=>{
+                            if(err){
+                                console.log(err);
+                            }
+                            return cb(err,user);
+                        })
+                    }else{
+                        if(user.googleID==null){
+                            user.googleID = profile.id;
+                            user.save(err=>{
+                                if(err){
+                                    console.log(err);
+                                }
+                                return cb(err,user);
+                            });
+                        }else{
+                            return cb(err,user);
+                        }
+                        
+                    }
+                })
+            }
+        } )
+        
+    }
+));
+
+
+passport.serializeUser(function(user, done) {
+    done(null, user.id);
+  });
+  
+  passport.deserializeUser(function(id, done) {
+    User.findById(id, function(err, user) {
+      done(err, user);
+    });
+  });
+
 
 app.get("/",(req,res)=>{
-    if(logInCondition){
+    if(req.isAuthenticated()){
         res.redirect("/home");
     }else{
         res.render("index");
     }
 })
 
-app.get("/login",(req,res)=>{
-    res.render("logInPage",{noAccountMessage:""});
-});
 
 app.get("/signup",(req,res)=>{
-    res.render("signUpPage",{accountExistsWarning:""});
+    res.render("signUpPage");
 });
 
 app.get("/home",(req,res)=>{
-    if(logInCondition){
-        if(!loggedInAccount.doc_acc){
-            res.render("userHome.ejs",{loggedInAccount:loggedInAccount});
+    if(req.isAuthenticated()){
+        if(req.user.doc_acc){
+            res.render("docHome",{loggedInAccount:req.user,jScript:"js/docHome.js"});
         }else{
-           userAccount.find({assigned_doctor_id:loggedInAccount._id},(err,foundAccounts)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                    patientsList=foundAccounts;
-                    res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:patientsList,jScript:"js/docHome.js",result:""});
-                }
-           });
+            res.render("userHome",{loggedInAccount:req.user});
         }
-        
     }else{
         res.redirect("/");
     }
+    
 });
 
 app.get("/logout",(req,res)=>{
-    logInCondition=false;
-    loggedInAccount=null;
+    req.logout();
     res.redirect("/");
-})
-
-
-app.post("/login",(req,res)=>{
-
-     userAccount.findOne({email:req.body.inputEmail, password: req.body.inputPassword},(err,account)=>{
-         if(err){
-             console.log(err);
-         }else{
-             if(account==null){
-                res.render("logInPage",{noAccountMessage:"No such account exists"});
-             }else{
-                 logInCondition=true;
-                 loggedInAccount=account;
-                 res.redirect("/home");
-             }
-         }
-     })
 });
 
-app.post("/signup", (req, res) => {
-    const user_data = req.body;
-    user_data.doc_acc = false;
-    //check if account already exists by checking identity card no, email address
-    
+app.get("/success",(req,res)=>{
+    res.render("allSet");
+});
 
-    userAccount.findOne({$or:[{email: user_data.email},{IDno: user_data.IDno}]}, (err, foundAccount) => {
-        if (err) {
+app.get("/auth/google",
+  passport.authenticate("google", { scope: [
+      "profile",
+      "email",
+      "https://www.googleapis.com/auth/user.addresses.read",
+      "https://www.googleapis.com/auth/user.birthday.read"    
+    ] })
+);
+
+app.get("/auth/google/medirec", 
+  passport.authenticate("google", { failureRedirect: "/" }),
+  function(req, res) {
+    res.redirect("/home");
+  });
+
+
+app.post("/signup/page2",(req,res)=>{
+    const settings = {
+        remindersOn:"reminders" in req.body,
+        autoOrderOn:"autoOrder" in req.body
+    }
+    
+    User.findById(req.user.id,(err,foundUser)=>{
+        if(err){
             console.log(err);
-        } else {
-            if (foundAccount) {
-                console.log("Account already exists");
-                res.render("signUpPage",{accountExistsWarning:"Account with that identity card or email address already exists"})
-            } else {
-                const newUser = new userAccount(user_data);
-                console.log(newUser);
-                newUser.save(err => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log("Successfully added");
-                        res.render("signUpPage2",{accountID:newUser._id});
-                        
-                    }
-                });
-            }
+        }else{
+            foundUser.settings=settings;
+            foundUser.save(()=>{
+                res.redirect("/success");
+            });
         }
     });
 });
 
-app.post("/new-user-settings",(req,res)=>{
-    const userSettings={
-        remindersOn:("reminders" in req.body),
-        autoOrderOn:("autoOrder" in req.body)
+app.post("/signup",(req,res)=>{
+    const newUser = {
+        username: req.body.username,
+        firstName:_.capitalize(req.body.firstName),
+        lastName:_.capitalize(req.body.lastName),
+        nationality:_.capitalize(req.body.nationality),
+        IDno:req.body.IDno,
+        maritalStatus:req.body.maritalStatus,
+        sex:req.body.sex,
+        disability:req.body.disability,
+        phoneNo: req.body.phoneNo,
+        addrLine1:req.body.addrLine1,
+        addrLine2:req.body.addrLine2,
+        dob:req.body.dob,
+        doc_acc:false,
     };
-    console.log(req.body);
-    userAccount.findOneAndUpdate({_id:req.body.accountID},{settings:userSettings},{new:true},(err,foundAccount)=>{
+
+    const password = req.body.password;
+
+    User.register(newUser, password , (err,user)=>{
         if(err){
             console.log(err);
+            res.redirect("/signup");
         }else{
-            logInCondition = true;
-            loggedInAccount = foundAccount;
-            res.render("allSet");
+            passport.authenticate("local")(req,res,()=>{
+                res.render("signUpPage2");
+            });
         }
     })
-
 });
 
-app.post("/home",(req,res)=>{
-    const names=req.body.searchQuery.split(" ");
-    if(names.length==1)
-    {
-        userAccount.find({$or:[{firstName:names[0]},{lastName:names[0]}]},(err,foundAccounts)=>{
-            if(err){
-                console.log(err);
-            }else{
-                res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:patientsList,jScript:"js/docHomeSearch.js",result:foundAccounts});
-            }
-        });
-    }
-    else if(names.length=2) 
-    {
-        userAccount.find({$or:[{$and:[{firstName:names[0]},{lastName:names[1]}]},{$and:[{firstName:names[1]},{lastName:names[0]}]}]},(err,foundAccounts)=>{
-            if(err){
-                console.log(err);
-            }else{
-                res.render("docHome.ejs",{loggedInAccount:loggedInAccount,patientsList:patientsList,jScript:"js/docHomeSearch.js",result:foundAccounts});
-            }
-        })
-    }
+app.post("/login",(req,res)=>{
+    const user = new User({
+        username:req.body.username,
+        password:req.body.password
+    });
 
-})
+    passport.authenticate('local',{failureRedirect:"/",failureMessage:"Incorrect Email or Password"})(req,res,()=>{
+        res.redirect("/home");
+    })
+});
 app.listen(3000,()=>{
     console.log("Server running at port 3000");
-})
+});
