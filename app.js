@@ -7,6 +7,7 @@ const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose=require("passport-local-mongoose");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const findOrCreate=require("mongoose-findorcreate");
 var _ = require('lodash');
 
@@ -33,6 +34,7 @@ mongoose.connect("mongodb://localhost:27017/MedirecDB");
 
 const userSchema=new mongoose.Schema({
     googleID:String,
+    facebookID:String,
     username: String,
     firstName:String,
     lastName:String,
@@ -60,6 +62,7 @@ userSchema.plugin(findOrCreate);
 const User = mongoose.model('userAccount',userSchema);
 
 passport.use(User.createStrategy());
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -67,22 +70,23 @@ passport.use(new GoogleStrategy({
     },
     function(accessToken, refreshToken, profile, cb) {
 
-        request({uri:"https://people.googleapis.com/v1/people/me", headers:{Authorization:` Bearer ${accessToken}`},qs:{personFields:"addresses,birthdays,genders,phoneNumbers"}},(err,response,body)=>{
+        request({uri:"https://people.googleapis.com/v1/people/me", headers:{Authorization:` Bearer ${accessToken}`},qs:{personFields:"birthdays,genders"}},(err,response,body)=>{
             if(err){
                 console.log(err);
             }else{
-                const googleJSONProfile = JSON.parse(body);              
+                const googleJSONProfile = JSON.parse(body);            
                 User.findOne({username:profile.emails[0].value},(err,user)=>{
                     if(err){
                         return cb(err);
                     }
                     if(!user){
                         user = new User({
-                            username:profile.emails[0].value,
                             googleID: profile.id,
+                            username:profile.emails[0].value,
                             firstName:_.capitalize(profile.name.givenName), 
                             lastName:_.capitalize(profile.name.familyName),
-                            sex:googleJSONProfile.genders[0].value
+                            sex:googleJSONProfile.genders[0].value,
+                            dob:`${googleJSONProfile.birthdays[1].date.year}-${googleJSONProfile.birthdays[1].date.month.toLocaleString('en-US',{minimumIntegerDigits:2})}-${googleJSONProfile.birthdays[1].date.day.toLocaleString('en-US',{minimumIntegerDigits:2})}`
                         });
 
                         user.save(err=>{
@@ -112,16 +116,62 @@ passport.use(new GoogleStrategy({
     }
 ));
 
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET,
+    callbackURL: "http://localhost:3000/auth/facebook/medirec",
+    profileFields:['email','gender','name','birthday']
+    },
+    function(accessToken, refreshToken, profile, cb) {
+        console.log(profile); 
+        birthday_array=profile._json.birthday.split('/');
+        console.log(birthday_array);
+        User.findOne({username:profile._json.email},(err,user)=>{
+            if(err){
+                return cb(err);
+            }
+            if(!user){
+                user = new User({
+                    facebookID:profile.id,
+                    username: profile._json.email,
+                    firstName:_.capitalize(profile._json.first_name),
+                    lastName:_.capitalize(profile._json.last_name),
+                    sex:profile._json.gender,
+                    dob:`${birthday_array[2]}-${birthday_array[0]}-${birthday_array[1]}`
+                });
+                user.save(err=>{
+                    if(err){
+                        console.log(err);
+                    }
+                    return cb(err,user);
+                })
+            }else{
+                if(user.facebookID==null){
+                    user.facebookID = profile.id;
+                    user.save(err=>{
+                        if(err){
+                            console.log(err);
+                        }
+                        return cb(err,user);
+                    });
+                }else{
+                    return cb(err,user);
+                }
+                
+            }
+        })
+    }
+));
 
 passport.serializeUser(function(user, done) {
     done(null, user.id);
-  });
-  
-  passport.deserializeUser(function(id, done) {
+});
+
+passport.deserializeUser(function(id, done) {
     User.findById(id, function(err, user) {
-      done(err, user);
+        done(err, user);
     });
-  });
+});
 
 
 app.get("/",(req,res)=>{
@@ -160,19 +210,29 @@ app.get("/success",(req,res)=>{
 });
 
 app.get("/auth/google",
-  passport.authenticate("google", { scope: [
-      "profile",
-      "email",
-      "https://www.googleapis.com/auth/user.addresses.read",
-      "https://www.googleapis.com/auth/user.birthday.read"    
+    passport.authenticate("google", { scope: [
+        "profile",
+        "email",
+        "https://www.googleapis.com/auth/user.addresses.read",
+        "https://www.googleapis.com/auth/user.birthday.read"    
     ] })
 );
 
 app.get("/auth/google/medirec", 
-  passport.authenticate("google", { failureRedirect: "/" }),
-  function(req, res) {
-    res.redirect("/home");
-  });
+    passport.authenticate("google", { failureRedirect: "/" }),
+    function(req, res) {
+        res.redirect("/home");
+    });
+
+app.get('/auth/facebook',
+    passport.authenticate('facebook', { scope: ['email','user_birthday','user_gender'] }));
+
+app.get('/auth/facebook/medirec',
+    passport.authenticate("facebook", { failureRedirect: "/" }),
+    function(req, res) {
+        // Successful authentication, redirect home.
+        res.redirect("/home");
+    });
 
 
 app.post("/signup/page2",(req,res)=>{
