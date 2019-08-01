@@ -1,7 +1,7 @@
 <%- include('partials/header',{title:"Welcome!", pageCSS:"css/Home.css"})%>
 
 <nav class="navbar navbar-expand-md sticky-top navbar-dark">
-        <a class="navbar-brand" href="#">Hi, <%= loggedInAccount.firstName %>!</a>
+        <a class="navbar-brand" href="#">Hi, <%= loggedInAccount.profile.firstName %>!</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#options">
             <span class="navbar-toggler-icon"></span>
         </button>

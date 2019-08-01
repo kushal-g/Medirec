@@ -36,24 +36,32 @@ const userSchema=new mongoose.Schema({
     googleID:String,
     facebookID:String,
     username: String,
-    firstName:String,
-    lastName:String,
-    nationality:String,
-    IDno:String,
-    maritalStatus:String,
-    sex:String,
-    disability:String,
-    phoneNo: String,
-    addrLine1:String,
-    addrLine2:String,
-    dob:String,
     doc_acc:Boolean,
+
     settings:{
         remindersOn:Boolean,
         autoOrderOn:Boolean 
     },
+
     assigned_doctor_id:[String],
-    docAssignment_req:[String]
+    docAssignment_req:[String],
+    
+    profile:{
+        
+        firstName:String,
+        lastName:String,
+        nationality:String,
+        IDno:String,
+        maritalStatus:String,
+        sex:String,
+        disability:String,
+        phoneNo: String,
+        addrLine1:String,
+        addrLine2:String,
+        dob:String,
+    },
+
+    profile_complete:Boolean
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -75,7 +83,7 @@ passport.use(new GoogleStrategy({
                 console.log(err);
             }else{
                 const googleJSONProfile = JSON.parse(body);            
-                User.findOne({username:profile.emails[0].value},(err,user)=>{
+                User.findOne({$or:[{username:profile.emails[0].value},{googleID: profile.id}]},(err,user)=>{
                     if(err){
                         return cb(err);
                     }
@@ -83,10 +91,14 @@ passport.use(new GoogleStrategy({
                         user = new User({
                             googleID: profile.id,
                             username:profile.emails[0].value,
-                            firstName:_.capitalize(profile.name.givenName), 
-                            lastName:_.capitalize(profile.name.familyName),
-                            sex:googleJSONProfile.genders[0].value,
-                            dob:`${googleJSONProfile.birthdays[1].date.year}-${googleJSONProfile.birthdays[1].date.month.toLocaleString('en-US',{minimumIntegerDigits:2})}-${googleJSONProfile.birthdays[1].date.day.toLocaleString('en-US',{minimumIntegerDigits:2})}`
+                            profile:{
+                                
+                                firstName:_.capitalize(profile.name.givenName), 
+                                lastName:_.capitalize(profile.name.familyName),
+                                sex:googleJSONProfile.genders[0].value,
+                                dob:`${googleJSONProfile.birthdays[1].date.year}-${googleJSONProfile.birthdays[1].date.month.toLocaleString('en-US',{minimumIntegerDigits:2})}-${googleJSONProfile.birthdays[1].date.day.toLocaleString('en-US',{minimumIntegerDigits:2})}`
+                            },
+                            profile_complete:false
                         });
 
                         user.save(err=>{
@@ -123,10 +135,9 @@ passport.use(new FacebookStrategy({
     profileFields:['email','gender','name','birthday']
     },
     function(accessToken, refreshToken, profile, cb) {
-        console.log(profile); 
+    
         birthday_array=profile._json.birthday.split('/');
-        console.log(birthday_array);
-        User.findOne({username:profile._json.email},(err,user)=>{
+        User.findOne({$or:[{username:profile._json.email},{facebookID:profile.id}]},(err,user)=>{
             if(err){
                 return cb(err);
             }
@@ -134,10 +145,14 @@ passport.use(new FacebookStrategy({
                 user = new User({
                     facebookID:profile.id,
                     username: profile._json.email,
-                    firstName:_.capitalize(profile._json.first_name),
-                    lastName:_.capitalize(profile._json.last_name),
-                    sex:profile._json.gender,
-                    dob:`${birthday_array[2]}-${birthday_array[0]}-${birthday_array[1]}`
+                    profile:{
+                        
+                        firstName:_.capitalize(profile._json.first_name),
+                        lastName:_.capitalize(profile._json.last_name),
+                        sex:profile._json.gender,
+                        dob:`${birthday_array[2]}-${birthday_array[0]}-${birthday_array[1]}`
+                    },
+                    profile_complete:false
                 });
                 user.save(err=>{
                     if(err){
@@ -189,11 +204,16 @@ app.get("/signup",(req,res)=>{
 
 app.get("/home",(req,res)=>{
     if(req.isAuthenticated()){
-        if(req.user.doc_acc){
-            res.render("docHome",{loggedInAccount:req.user,jScript:"js/docHome.js"});
+        if(req.user.profile_complete){
+            if(req.user.doc_acc){
+                res.render("docHome",{loggedInAccount:req.user,jScript:"js/docHome.js"});
+            }else{
+                res.render("userHome",{loggedInAccount:req.user});
+            }
         }else{
-            res.render("userHome",{loggedInAccount:req.user});
+            res.redirect("/socialSignUp");
         }
+        
     }else{
         res.redirect("/");
     }
@@ -221,7 +241,11 @@ app.get("/auth/google",
 app.get("/auth/google/medirec", 
     passport.authenticate("google", { failureRedirect: "/" }),
     function(req, res) {
-        res.redirect("/home");
+        if(req.user.profile_complete){
+            res.redirect("/home");
+        }else{
+            res.redirect("/socialSignUp");
+        }
     });
 
 app.get('/auth/facebook',
@@ -230,10 +254,22 @@ app.get('/auth/facebook',
 app.get('/auth/facebook/medirec',
     passport.authenticate("facebook", { failureRedirect: "/" }),
     function(req, res) {
-        // Successful authentication, redirect home.
-        res.redirect("/home");
+        if(req.user.profile_complete){
+            res.redirect("/home");
+        }else{
+            res.redirect("/socialSignUp");
+        }
     });
 
+
+app.get("/socialSignUp",(req,res)=>{
+    if(req.isAuthenticated()){
+        res.render("socialSignUp",{loggedInAccount:req.user});
+    }else{
+        res.redirect("/");
+    }
+    
+});
 
 app.post("/signup/page2",(req,res)=>{
     const settings = {
@@ -256,18 +292,21 @@ app.post("/signup/page2",(req,res)=>{
 app.post("/signup",(req,res)=>{
     const newUser = {
         username: req.body.username,
-        firstName:_.capitalize(req.body.firstName),
-        lastName:_.capitalize(req.body.lastName),
-        nationality:_.capitalize(req.body.nationality),
-        IDno:req.body.IDno,
-        maritalStatus:req.body.maritalStatus,
-        sex:req.body.sex,
-        disability:req.body.disability,
-        phoneNo: req.body.phoneNo,
-        addrLine1:req.body.addrLine1,
-        addrLine2:req.body.addrLine2,
-        dob:req.body.dob,
+        profile:{
+            firstName:_.capitalize(req.body.firstName),
+            lastName:_.capitalize(req.body.lastName),
+            nationality:_.capitalize(req.body.nationality),
+            IDno:req.body.IDno,
+            maritalStatus:req.body.maritalStatus,
+            sex:req.body.sex,
+            disability:req.body.disability,
+            phoneNo: req.body.phoneNo,
+            addrLine1:req.body.addrLine1,
+            addrLine2:req.body.addrLine2,
+            dob:req.body.dob,
+        },
         doc_acc:false,
+        profile_complete:true
     };
 
     const password = req.body.password;
@@ -294,6 +333,32 @@ app.post("/login",(req,res)=>{
         res.redirect("/home");
     })
 });
+
+app.post("/socialSignUp",(req,res)=>{
+    User.findById(req.user.id,(err,foundUser)=>{
+        if(err){
+            console.log(err);
+        }else{
+           foundUser.profile.nationality =_.capitalize(req.body.nationality);
+           foundUser.profile.IDno = req.body.IDno;
+           foundUser.profile.maritalStatus = req.body.maritalStatus;
+           foundUser.profile.sex = req.body.sex;
+           foundUser.profile.disability = req.body.disability;
+           foundUser.profile.phoneNo = req.body.phoneNo;
+           foundUser.profile.addrLine1 = req.body.addrLine1;
+           foundUser.profile.addrLine2 = req.body.addrLine2;
+           foundUser.profile_complete=true;
+           foundUser.save(err=>{
+               if(err){
+                   console.log(err);
+               }else{
+                   res.redirect("/home");
+               }
+           });
+        }
+    });
+});
+
 app.listen(3000,()=>{
     console.log("Server running at port 3000");
 });

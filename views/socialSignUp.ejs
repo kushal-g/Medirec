@@ -1,0 +1,83 @@
+<%- include('partials/header',{title:"Enter Details", pageCSS:"css/socialSignUp.css"})%>
+
+<div class="content mx-auto">
+    <h2 class="display-4 text-left px-3 mb-0">Hey, <%= loggedInAccount.profile.firstName %></h2>
+    <p class="lead text-left px-3">Before we proceed further, we'd like to know more about you</p>
+    <div class="container-fluid">
+        <form action="/socialSignUp" method="post" onsubmit="return valid()">
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Nationality" id="nationality" name="nationality" required>
+                    <span class="nationalityWarning">Nationality can only have alphabets</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Identity Card Number" id="IDno" name="IDno" required>
+                    <span class="IDnoWarning">Identity Card Number can only have digits</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <div class="input-group">
+                        <select class="custom-select form-control" id="maritalStatus" name="maritalStatus">
+                            <option selected>Marital Status</option>
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                        </select>
+                    </div>
+                    <span class="maritalStatusWarning">Please pick your marital status</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <div class="input-group">
+                        <select class="custom-select form-control" id="sex" name="sex">
+                            <option selected>Sex</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <span class="sexWarning">Please choose a sex</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Disability" id="disability" name="disability"
+                        value="">
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <input type="tel" class="form-control" placeholder="Phone no" id="phoneNo" name="phoneNo" required>
+                    <span class="phoneNoWarning">Phone number should only have numbers and be 10 digits long</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Address Line 1" id="addrLine1" name="addrLine1"
+                        required>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Address Line 2" id="addrLine2"
+                        name="addrLine2">
+                </div>
+            </div>
+            <div class="row mt-2">
+                    <div class="col">
+                            <a href="/logout" role="button" class="btn btn-outline-danger btn-block">Go back</a>
+                        </div>
+                    <div class="col">
+                        <input type="submit" class="btn btn-info btn-block" value="Proceed">
+                    </div>
+                </div>
+        </form>
+
+    </div>
+</div>
+
+<script src="bower_components/validator-js/validator.min.js"></script>
+<%- include('partials/footer',{pageJS:"js/socialSignUp.js"})%>

@@ -98,6 +98,6 @@ const valid=()=>{
     {
         $('.passwordWarning').css("display","none");
     }
-
+    console.log(valid);
     return valid;
 }
