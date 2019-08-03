@@ -8,8 +8,8 @@ const passport = require("passport");
 const passportLocalMongoose=require("passport-local-mongoose");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
-const findOrCreate=require("mongoose-findorcreate");
-var _ = require('lodash');
+const _ = require('lodash');
+const socketio = require("socket.io");
 
 const app=express();
 
@@ -65,7 +65,6 @@ const userSchema=new mongoose.Schema({
 });
 
 userSchema.plugin(passportLocalMongoose);
-userSchema.plugin(findOrCreate);
 
 const User = mongoose.model('userAccount',userSchema);
 
@@ -206,7 +205,7 @@ app.get("/home",(req,res)=>{
     if(req.isAuthenticated()){
         if(req.user.profile_complete){
             if(req.user.doc_acc){
-                res.render("docHome",{loggedInAccount:req.user,jScript:"js/docHome.js"});
+                res.render("docHome",{loggedInAccount:req.user});
             }else{
                 res.render("userHome",{loggedInAccount:req.user});
             }
@@ -348,17 +347,47 @@ app.post("/socialSignUp",(req,res)=>{
            foundUser.profile.addrLine1 = req.body.addrLine1;
            foundUser.profile.addrLine2 = req.body.addrLine2;
            foundUser.profile_complete=true;
+           foundUser.doc_acc=false;
            foundUser.save(err=>{
                if(err){
                    console.log(err);
                }else{
-                   res.redirect("/home");
+                res.render("signUpPage2");
                }
            });
         }
     });
 });
 
-app.listen(3000,()=>{
+const expressServer = app.listen(3000,()=>{
     console.log("Server running at port 3000");
 });
+
+//socketio
+
+const io = socketio(expressServer);
+
+io.on('connection',socket=>{
+    
+    socket.on('sendMyPatients', loggedInUser=>{
+        User.find({assigned_doctor_id:{$in:[loggedInUser]}},(err,foundUsers)=>{
+            if(err){
+                console.log(err);
+            }else{
+                socket.emit('recieveYourPatients',{data:foundUsers});
+            }
+        });
+
+
+
+        
+
+    });
+
+
+
+
+
+
+});
+

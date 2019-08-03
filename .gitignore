@@ -30,7 +30,7 @@ coverage
 
 # Bower dependency directory (https://bower.io/)
 bower_components/
-bower_components/validator-js/
+bower_components/bower_components/validator-js/
 
 # node-waf configuration
 .lock-wscript
