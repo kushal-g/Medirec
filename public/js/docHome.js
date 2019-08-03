@@ -7,8 +7,7 @@ const user_id = $('#user').val();
 
 //"Your Patients" section
 
-socket.emit('sendMyPatients',user_id);
-socket.on('recieveYourPatients',patients=>{
+socket.emit('sendMyPatients',user_id,patients=>{
 
   let patientsHTML="";
   patients.data.forEach(patient=>{
@@ -18,14 +17,14 @@ socket.on('recieveYourPatients',patients=>{
   $('#patientsList').html(patientsHTML);
 });
 
+
 //"Search" section
 
 $('#searchForm').submit(e => {
   e.preventDefault();
   const searchQuery = $('#searchQuery').val();
 
-  socket.emit('sendSearchResults', searchQuery, user_id);
-  socket.once('recieveSearchResults', searchResult => {
+  socket.emit('sendSearchResults', {searchQuery:searchQuery, loggedInUser:user_id},searchResult => {
     let searchHTML = "";
     searchResult.forEach(result => {
       searchHTML += `<li class="list-group-item">

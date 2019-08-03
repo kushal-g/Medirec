@@ -375,35 +375,34 @@ io.on('connection',socket=>{
 
 
     //Populate 'Your Patient' List
-    socket.on('sendMyPatients', loggedInUser=>{
+    socket.on('sendMyPatients', (loggedInUser,fn)=>{
         User.find({assigned_doctor_id:{$in:[loggedInUser]}},(err,foundUsers)=>{
             if(err){
                 console.log(err);
             }else{
-                socket.emit('recieveYourPatients',{data:foundUsers});
+                fn({data:foundUsers});
             }
         });
     });
 
 
     //Search for patient
-    socket.on('sendSearchResults',(searchQuery,loggedInUser)=>{
-        const names = searchQuery.split(" ");
+    socket.on('sendSearchResults',(data,fn)=>{
+        const names = data.searchQuery.split(" ");
         if(names.length==1){
-            User.find({$and:[{_id:{$ne:loggedInUser}},{$or:[{"profile.firstName":names[0]},{"profile.lastName":names[0]}]}]},(err,foundAccounts)=>{
+            User.find({$and:[{_id:{$ne:data.loggedInUser}},{$or:[{"profile.firstName":names[0]},{"profile.lastName":names[0]}]}]},(err,foundAccounts)=>{
                 if(err){
                     console.log(err);
                 }else{
-                    socket.emit('recieveSearchResults',foundAccounts);
-                    console.log(foundAccounts);
+                    fn(foundAccounts);
                 }
             });
         }else if(names.length=2) {
-            User.find({$and:[{_id:{$ne:loggedInUser}},{$or:[{$and:[{"profile.firstName":names[0]},{"profile.lastName":names[1]}]},{$and:[{"profile.firstName":names[1]},{"profile.lastName":names[0]}]}]}]},(err,foundAccounts)=>{
+            User.find({$and:[{_id:{$ne:data.loggedInUser}},{$or:[{$and:[{"profile.firstName":names[0]},{"profile.lastName":names[1]}]},{$and:[{"profile.firstName":names[1]},{"profile.lastName":names[0]}]}]}]},(err,foundAccounts)=>{
                 if(err){
                     console.log(err);
                 }else{
-                    socket.emit('recieveSearchResults',foundAccounts);
+                    fn(foundAccounts);
                 }
             });
         }
