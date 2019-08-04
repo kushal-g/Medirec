@@ -20,29 +20,76 @@ socket.emit('sendMyPatients',user_id,patients=>{
 
 //"Search" section
 
-$('#searchForm').submit(e => {
+$('#searchButton').click(e => {
   e.preventDefault();
   const searchQuery = $('#searchQuery').val();
 
   socket.emit('sendSearchResults', {searchQuery:searchQuery, loggedInUser:user_id},searchResult => {
     let searchHTML = "";
     searchResult.forEach(result => {
-      searchHTML += `<li class="list-group-item">
+
+      if(result.docAssignment_req.includes(user_id)){
+        searchHTML += `<li class="list-group-item">
         <div class="row">          
             <div class="col">
             ${result.profile.firstName} ${result.profile.lastName}
             </div>
             <div class="col-auto my-auto">
-                <form action="/home/addPatient" method="post">
-                    <input type="hidden" name="patient_id" value="${result._id}" >
-                    <input type="image" class="img-add" src="images/add.png" alt="+">
+                <form class="addPatient">
+                    <input type="button" class="img-reqSent" disabled>
+                    <input type="hidden" class="patientID" value="${result._id}">
                 </form>
             </div>
         </div>
-    </li>`
+    </li>`;
+      }else{
+        searchHTML += `<li class="list-group-item">
+        <div class="row">          
+            <div class="col">
+            ${result.profile.firstName} ${result.profile.lastName}
+            </div>
+            <div class="col-auto my-auto">
+                <form class="addPatient">
+                    <input type="button" class="img-add">
+                    <input type="hidden" class="patientID" value="${result._id}">
+                </form>
+            </div>
+        </div>
+    </li>`;
+      }
+
+
+
+      
     });
 
+    
+    
+
     $('#searchResultList').html(searchHTML);
+    
+    //Turning plus to check if request already sent and disabling it
+
+
+
+    //Add Patients
+    $('.addPatient input[type="button"]').click(e=>{
+      const addRequestID = $(e.target).siblings('input[type="hidden"]').val();
+
+      socket.emit('addPatientRequest',{patientID:addRequestID, loggedInUser:user_id},sent=>{
+        if(sent){
+          //Turn plus to check and disable it
+          $(e.target).removeClass("img-add");
+          $(e.target).addClass("img-reqSent");
+          $(e.target).prop('disabled',true);
+        }
+      });
+    });
+
+    
     $('#searchResult-tab').tab('show');
+    $('.active').removeClass('active');
   });
 });
+
+//Adding patients

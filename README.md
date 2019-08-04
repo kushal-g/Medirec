@@ -31,8 +31,15 @@ This project aims to reduce the communication gap that may occur between a docto
 
 ## What currently works
 
+
 - Registration and Log in of users either locally or through Google or Facebook.
-- Doctors can view all the patients that are under their treatment. 
-	 > However, there is no way to upgrade to Doctor account from usual account currently or even to add patients under their treatment. Set the "doc_acc" property of a user to true to manually upgrade. 
+
+- Doctors can view all the patients that are under their treatment.
+
+> However, there is no way to upgrade to Doctor account from usual account currently ~~or even to add patients under their treatment~~. Set the "doc_acc" property of a user to true to manually upgrade.
+
 - Doctors can search to add new patients
-	 > They can however only search. They cannot actually add new patients.
+
+- Doctors can now send request to add a patient under their treatment
+> The user to whom request is sent cannot accept yet
+

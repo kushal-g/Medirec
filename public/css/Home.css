@@ -16,9 +16,16 @@ h1{
 }
 
 .img-add{
+    background:url("/images/add.png") no-repeat; 
     width:20px;
+    border:none;
 }
 
+.img-reqSent{
+    background:url("/images/checked-green.png") no-repeat; 
+    width:20px;
+    border:none;
+}
 .img-add:hover{
     background-color: yellow;
     border-radius: 50%;

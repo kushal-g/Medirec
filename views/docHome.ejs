@@ -13,15 +13,15 @@
         <ul class="nav navbar-nav mb-3" role="tablist">
 
             <li class="nav-item mt-2">
-                <a class="nav-link" data-toggle="pill" href="#patients" role="tab">Your Patients</a>
+                <a class="nav-link" data-toggle="tab" href="#patients" role="tab">Your Patients</a>
             </li>
 
             <li class="nav-item dropdown mt-2">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Add a patient</a>
                 <div class="dropdown-menu p-3 mt-2">
                     <form id="searchForm" class="form-inline">
-                        <input type="search" class="form-control mb-2" placeholder="Search" id="searchQuery"><input type="submit" class="btn btn-info btn-sm">
-                        <input type="hidden" data-toggle="pill" id="searchResult-tab" href="#searchResult" role="tab">
+                        <input type="search" class="form-control mb-2" placeholder="Search" id="searchQuery"><input type="button" class="btn btn-info btn-sm" id="searchButton" value="Search">
+                        <input type="hidden" data-toggle="tab" id="searchResult-tab" href="#searchResult" role="tab">
                     </form>
                 </div>
             </li>

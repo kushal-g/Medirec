@@ -374,7 +374,7 @@ io.on('connection',socket=>{
 //--------------------------------------------------------
 
 
-    //Populate 'Your Patient' List
+    //POPULATE 'YOUR PATIENT' LIST
     socket.on('sendMyPatients', (loggedInUser,fn)=>{
         User.find({assigned_doctor_id:{$in:[loggedInUser]}},(err,foundUsers)=>{
             if(err){
@@ -386,7 +386,7 @@ io.on('connection',socket=>{
     });
 
 
-    //Search for patient
+    //SEARCH FOR PATIENT
     socket.on('sendSearchResults',(data,fn)=>{
         const names = data.searchQuery.split(" ");
         if(names.length==1){
@@ -408,8 +408,17 @@ io.on('connection',socket=>{
         }
     });
 
-
-
+    //ADD PATIENT
+    socket.on('addPatientRequest',(request,fn)=>{
+        console.log("Request recieved");
+        User.findByIdAndUpdate(request.patientID,{$push:{docAssignment_req:request.loggedInUser}},(err,foundUser)=>{
+            if(err){
+                console.log(err);
+            }else{
+                fn(true);
+            }
+        })
+    })
 
 
 });
