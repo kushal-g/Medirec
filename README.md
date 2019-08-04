@@ -28,6 +28,8 @@ This project aims to reduce the communication gap that may occur between a docto
 - [Lodash](https://lodash.com/)
 - [socket.io](https://socket.io/)
 - [dotenv](https://www.npmjs.com/package/dotenv)
+- [bower](https://bower.io/)
+- [validator.js](https://github.com/validatorjs/validator.js)
 
 ## What currently works
 
