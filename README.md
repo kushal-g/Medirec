@@ -43,5 +43,6 @@ This project aims to reduce the communication gap that may occur between a docto
 - Doctors can search to add new patients
 
 - Doctors can now send request to add a patient under their treatment
-> The user to whom request is sent cannot accept yet
+
+- Doctors and Regular Users can now accept or reject a request sent by a doctor
 

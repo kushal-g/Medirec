@@ -446,17 +446,28 @@ io.on('connection',socket=>{
             }
         });
     })
-
+    
+    //REJECT ADD REQUEST
     socket.on('rejectRequest',(data,fn)=>{
-        User.findByIdAndUpdate(data.loggedInUser,{$pull: { docAssignment_req: { score: data.rejectDoctor } }},(err,foundUser)=>{
-            if(err){
-                console.log(err)
-            }else{
-                fn(true);
-            }
+        User.findByIdAndUpdate(data.loggedInUser,{$pull: { docAssignment_req: { _id: data.rejectDoctor } }},err=>{
+            if(err){console.log(err)}
+            else{fn(true);}
         })
     })
 
+    //ACCEPT ADD REQUEST
+    socket.on('acceptRequest',(data,fn)=>{
+
+        console.log(data);
+        User.findByIdAndUpdate(data.loggedInUser,{$pull: { docAssignment_req: { _id: data.acceptDoctor } }},err=>{
+            if(err){console.log(err)}
+        })
+
+        User.findByIdAndUpdate(data.loggedInUser,{$push: { assigned_doctor_id: { _id: data.acceptDoctor } }},err=>{
+            if(err){console.log(err);}
+            else{fn(true)};
+        })
+    });
 
 
 
