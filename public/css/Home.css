@@ -30,3 +30,8 @@ h1{
     background-color: yellow;
     border-radius: 50%;
 }
+
+.notificationMenu {
+    width: 500px !important;
+    
+}

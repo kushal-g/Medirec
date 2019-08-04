@@ -44,7 +44,9 @@ const userSchema=new mongoose.Schema({
     },
 
     assigned_doctor_id:[String],
-    docAssignment_req:[String],
+    docAssignment_req:[{_id:String,
+                        firstName:String,
+                        lastName:String}],
     
     profile:{
         
@@ -410,8 +412,12 @@ io.on('connection',socket=>{
 
     //ADD PATIENT
     socket.on('addPatientRequest',(request,fn)=>{
-        console.log("Request recieved");
-        User.findByIdAndUpdate(request.patientID,{$push:{docAssignment_req:request.loggedInUser}},(err,foundUser)=>{
+        
+        User.findByIdAndUpdate(request.patientID,{$push:{docAssignment_req:{
+            _id: request.loggedInUser,
+            firstName:request.loggedInUserFName,
+            lastName:request.loggedInUserLName
+            }}},(err,foundUser)=>{
             if(err){
                 console.log(err);
             }else{
@@ -420,6 +426,16 @@ io.on('connection',socket=>{
         })
     })
 
+    //POPULATE NOTIFICATIONS
+    socket.on('notificationRequest',(loggedInUser,fn)=>{
+        User.findById(loggedInUser,(err,foundUser)=>{
+            if(err){
+                console.log(err);
+            }else{
+                fn(foundUser);
+            }
+        });
+    })
 
 });
 

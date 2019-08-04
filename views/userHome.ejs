@@ -1,7 +1,20 @@
 <%- include('partials/header',{title:"Welcome!", pageCSS:"css/Home.css"})%>
+<input type="hidden" id="user" value=<%= loggedInAccount._id %>>
+<input type="hidden" id="userFirstName" value=<%= loggedInAccount.profile.firstName %>>
+<input type="hidden" id="userLastName" value=<%= loggedInAccount.profile.lastName %>>
 
 <nav class="navbar navbar-expand-md sticky-top navbar-dark">
-        <a class="navbar-brand" href="#">Hi, <%= loggedInAccount.profile.firstName %>!</a>
+        <div class="btn-group">
+            <button type="button" class="btn navbar-brand pr-0 mr-0">Hi, <%= loggedInAccount.profile.firstName %>!</button>
+            <button type="button" class="btn dropdown-toggle-split pl-0 ml-1 mt-1" data-toggle="dropdown">
+                    <span class="badge badge-light"><!--NUMBER OF NOTIFICATIONS--></span>
+            </button>
+            <div class="dropdown-menu notificationMenu">
+            <!--Notifications get populated by javascript here-->>
+            </div>
+        </div>
+        
+        
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#options">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -36,4 +49,4 @@
     <div class="tab-pane fade" id="orders" role="tabpanel">Your Orders</div>
     <div class="tab-pane fade" id="reminders" role="tabpanel">Reminders</div>
   </div>
-<%- include('partials/footer',{pageJS:""})%>
+<%- include('partials/footer',{pageJS:"js/userHome.js"})%>

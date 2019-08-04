@@ -1,10 +1,32 @@
 <%- include('partials/header',{title:"Welcome!", pageCSS:"css/Home.css"})%>
 
 <input type="hidden" id="user" value=<%= loggedInAccount._id %>>
+<input type="hidden" id="userFirstName" value=<%= loggedInAccount.profile.firstName %>>
+<input type="hidden" id="userLastName" value=<%= loggedInAccount.profile.lastName %>>
 
 
 <nav class="navbar navbar-expand-md sticky-top navbar-dark">
-    <a class="navbar-brand" href="#">Hi, <%= loggedInAccount.profile.firstName %>!</a>
+    
+    <div class="btn-group">
+        <button type="button" class="btn navbar-brand pr-0 mr-0">Hi, <%= loggedInAccount.profile.firstName %>!</button>
+        <button type="button" class="btn dropdown-toggle-split pl-0 ml-1 mt-1" data-toggle="dropdown">
+                <span class="badge badge-light"></span>
+        </button>
+        <div class="dropdown-menu notificationMenu">
+            <a class="dropdown-item" href="#">Notification 1</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Notification 2</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Notification 3</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Notification 4</a>
+        </div>
+    </div>
+
+
+
+
+
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#options">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -20,7 +42,8 @@
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Add a patient</a>
                 <div class="dropdown-menu p-3 mt-2">
                     <form id="searchForm" class="form-inline">
-                        <input type="search" class="form-control mb-2" placeholder="Search" id="searchQuery"><input type="button" class="btn btn-info btn-sm" id="searchButton" value="Search">
+                        <input type="search" class="form-control mb-2" placeholder="Search" id="searchQuery">
+                        <input type="button" class="btn btn-info btn-sm" id="searchButton" value="Search">
                         <input type="hidden" data-toggle="tab" id="searchResult-tab" href="#searchResult" role="tab">
                     </form>
                 </div>
