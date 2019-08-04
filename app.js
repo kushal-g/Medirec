@@ -367,7 +367,7 @@ const expressServer = app.listen(3000,()=>{
 
 //socketio
 
-const io = socketio(expressServer);
+const io = socketio(expressServer,{pingInterval:5000});
 
 io.on('connection',socket=>{
     
@@ -426,6 +426,11 @@ io.on('connection',socket=>{
         })
     })
 
+//--------------------------------------------------------
+//------------------BOTH ACCOUNTS------------------------
+//--------------------------------------------------------
+
+
     //POPULATE NOTIFICATIONS
     socket.on('notificationRequest',(loggedInUser,fn)=>{
         User.findById(loggedInUser,(err,foundUser)=>{
@@ -436,6 +441,21 @@ io.on('connection',socket=>{
             }
         });
     })
+
+    socket.on('rejectRequest',(data,fn)=>{
+        User.findByIdAndUpdate(data.loggedInUser,{$pull: { docAssignment_req: { score: data.rejectDoctor } }},(err,foundUser)=>{
+            if(err){
+                console.log(err)
+            }else{
+                fn(true);
+            }
+        })
+    })
+
+
+
+
+
 
 });
 
