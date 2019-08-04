@@ -391,6 +391,11 @@ io.on('connection',socket=>{
     //SEARCH FOR PATIENT
     socket.on('sendSearchResults',(data,fn)=>{
         const names = data.searchQuery.split(" ");
+
+        names.forEach((name,index)=>{
+            names[index] = _.capitalize(name);
+        });
+
         if(names.length==1){
             User.find({$and:[{_id:{$ne:data.loggedInUser}},{$or:[{"profile.firstName":names[0]},{"profile.lastName":names[0]}]}]},(err,foundAccounts)=>{
                 if(err){
