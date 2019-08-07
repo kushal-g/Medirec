@@ -7,6 +7,8 @@ $('[data-toggle="dropdown"]').click(function () {
   });
 });
 
+
+
 socket = io("http://localhost:3000");
 const user_id = $('#user').val();
 const userFirstName = $('#userFirstName').val();
@@ -82,10 +84,23 @@ socket.emit('sendMyPatients',user_id,patients=>{
 
   let patientsHTML="";
   patients.data.forEach(patient=>{
-    patientsHTML += `<li class="list-group-item">${patient.profile.firstName} ${patient.profile.lastName}</li>`
+    patientsHTML += `<li class="list-group-item">
+    <div class="row">          
+        <div class="col">
+        ${patient.profile.firstName} ${patient.profile.lastName}
+        </div>
+        <div class="col-auto my-auto">
+          <input type="hidden" class="patientID" value="${patient._id}">
+          <a role="button" class="fas fa-eye mx-2" href="#" data-toggle="tooltip" data-placement="top" title="View records"> </a>
+          <a role="button" class="fas fa-pen-fancy mx-2" href="#" data-toggle="tooltip" data-placement="top" title="Add new entry">  </a>
+          <a role="button" class="mx-2" href="#"> <img class="heart-tick" src="images/heart-tick.png" data-toggle="tooltip" data-placement="top" title="Complete treatment"></a>
+        </div>
+    </div>
+</li>`
   });
 
-  $('#patientsList').html(patientsHTML);
+  $('#patientsList').html(patientsHTML); //Inserts patients in flow of document
+  $('[data-toggle="tooltip"]').tooltip( {delay: { "hide": 200 }}); //Initialises tooltips
 });
 
 
