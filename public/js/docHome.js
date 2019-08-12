@@ -86,8 +86,11 @@ socket.emit('sendMyPatients',user_id,patients=>{
   patients.data.forEach(patient=>{
     patientsHTML += `<li class="list-group-item">
     <div class="row">          
-        <div class="col">
+        <div class="col-4">
         ${patient.profile.firstName} ${patient.profile.lastName}
+        </div>
+        <div class="col text-muted">
+          ${patient.username}
         </div>
         <div class="col-auto my-auto">
           <input type="hidden" class="patientID" value="${patient._id}">
@@ -112,30 +115,39 @@ $('#searchButton').click(e => {
 
   socket.emit('sendSearchResults', {searchQuery:searchQuery, loggedInUser:user_id},searchResult => {
     let searchHTML = "";
+    //looping through search results
     searchResult.forEach(result => {
-
-      if(result.docAssignment_req.filter(request => request._id === user_id).length > 0){
+      //checking if a found account already has a pending sent request
+      if(result.docAssignment_req.filter(request => request._id === user_id).length > 0){ //if yes
+        //displays disabled check button instead of add 
+        searchHTML += `<li class="list-group-item"> 
+                        <div class="row">          
+                          <div class="col-4">
+                            ${result.profile.firstName} ${result.profile.lastName}
+                          </div>
+                          <div class="col text-muted">
+                            ${result.username}
+                          </div>
+                          <div>
+                              <form class="addPatient  my-auto">
+                                  <input type="button" class="img-reqSent" disabled>  
+                                  <input type="hidden" class="patientID" value="${result._id}">
+                              </form>
+                          </div>
+                        </div>
+                      </li>`;
+      }else{  //otherwise
+        //displays add button to add patients
         searchHTML += `<li class="list-group-item">
         <div class="row">          
-            <div class="col">
+            <div class="col-4">
             ${result.profile.firstName} ${result.profile.lastName}
             </div>
-            <div class="col-auto my-auto">
-                <form class="addPatient">
-                    <input type="button" class="img-reqSent" disabled>
-                    <input type="hidden" class="patientID" value="${result._id}">
-                </form>
+            <div class="col text-muted">
+            ${result.username}
             </div>
-        </div>
-    </li>`;
-      }else{
-        searchHTML += `<li class="list-group-item">
-        <div class="row">          
-            <div class="col">
-            ${result.profile.firstName} ${result.profile.lastName}
-            </div>
-            <div class="col-auto my-auto">
-                <form class="addPatient">
+            <div>
+                <form class="addPatient my-auto">
                     <input type="button" class="img-add">
                     <input type="hidden" class="patientID" value="${result._id}">
                 </form>
