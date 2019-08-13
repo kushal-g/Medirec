@@ -12,11 +12,12 @@ const _ = require('lodash');
 const socketio = require("socket.io");
 
 const app=express();
+let healthOSAccessToken;
 
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(express.static(__dirname+'/public'));
-app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-app.use(session({
+app.use(bodyParser.urlencoded({extended:true})); //adds ability for server to read data recieved from forms
+app.use(express.static(__dirname+'/public')); //serves files in public folder
+app.use('/bower_components',  express.static(__dirname + '/bower_components')); //use bower modules in client side
+app.use(session({   //session to start with these settings
     secret:process.env.SECRET_STRING,
     resave:false,
     saveUninitialized: false
@@ -26,10 +27,10 @@ app.use(passport.session());    //begins session
 
 app.set('view engine','ejs');
 
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
-mongoose.connect("mongodb://localhost:27017/MedirecDB");
+mongoose.set('useNewUrlParser', true); //remove deprecation warning
+mongoose.set('useFindAndModify', false); //remove deprecation warning
+mongoose.set('useCreateIndex', true); //remove deprecation warning
+mongoose.connect("mongodb://localhost:27017/MedirecDB"); //connects to mongodb
 
 
 const userSchema=new mongoose.Schema({
@@ -70,9 +71,9 @@ userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('userAccount',userSchema);
 
-passport.use(User.createStrategy());
+passport.use(User.createStrategy()); //creates local strategy for login by using passportLocalMongoose plugin
 
-passport.use(new GoogleStrategy({
+passport.use(new GoogleStrategy({ //creates google strategy
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "http://localhost:3000/auth/google/medirec"
@@ -129,7 +130,7 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-passport.use(new FacebookStrategy({
+passport.use(new FacebookStrategy({ //creates faceboook strategy
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: "http://localhost:3000/auth/facebook/medirec",
@@ -179,16 +180,58 @@ passport.use(new FacebookStrategy({
     }
 ));
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function(user, done) { //sets user id as cookie in browser
     done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done) {
+passport.deserializeUser(function(id, done) { //gets id from cookie and then user is fetched from database
     User.findById(id, function(err, user) {
         done(err, user);
     });
 });
 
+//--------------------------------------------------------
+//---------------------FUNCTIONS--------------------------
+//--------------------------------------------------------
+
+const generateAccessToken = () =>{
+    return new Promise((resolve,reject)=>{
+        const options = {
+            "method":"POST",
+            "url" : " http://www.healthos.co/api/v1/oauth/token.json ",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body" :`{
+                "grant_type": "client_credentials",
+                "client_id": "${process.env.HEALTHOS_CLIENT_ID}",
+                "client_secret":"${process.env.HEALTHOS_CLIENT_SECRET}",
+                "scope": "public read write"
+            }`
+        };
+    
+        request(options,(err,response,body)=>{
+            if(err){
+                console.log(err);
+                reject(err);
+            }else{
+                if(response.statusCode == 200){
+                    const body_json = JSON.parse(body);
+                    healthOSAccessToken = body_json.access_token;
+                    console.log(healthOSAccessToken);
+                    resolve(healthOSAccessToken);
+                }else{
+                    reject(response);
+                }                
+            }
+        });
+    }); 
+}
+
+
+//--------------------------------------------------------
+//--------------------GET REQUESTS------------------------
+//--------------------------------------------------------
 
 app.get("/",(req,res)=>{
     if(req.isAuthenticated()){
@@ -205,6 +248,7 @@ app.get("/signup",(req,res)=>{
 
 app.get("/home",(req,res)=>{
     if(req.isAuthenticated()){
+
         if(req.user.profile_complete){
             if(req.user.doc_acc){
                 res.render("docHome",{loggedInAccount:req.user});
@@ -271,6 +315,10 @@ app.get("/socialSignUp",(req,res)=>{
     }
     
 });
+
+//--------------------------------------------------------
+//-------------------POST REQUESTS------------------------
+//--------------------------------------------------------
 
 app.post("/signup/page2",(req,res)=>{
     const settings = {
@@ -340,41 +388,57 @@ app.post("/socialSignUp",(req,res)=>{
         if(err){
             console.log(err);
         }else{
-           foundUser.profile.nationality =_.capitalize(req.body.nationality);
-           foundUser.profile.IDno = req.body.IDno;
-           foundUser.profile.maritalStatus = req.body.maritalStatus;
-           foundUser.profile.sex = req.body.sex;
-           foundUser.profile.disability = req.body.disability;
-           foundUser.profile.phoneNo = req.body.phoneNo;
-           foundUser.profile.addrLine1 = req.body.addrLine1;
-           foundUser.profile.addrLine2 = req.body.addrLine2;
-           foundUser.profile_complete=true;
-           foundUser.doc_acc=false;
-           foundUser.save(err=>{
-               if(err){
-                   console.log(err);
-               }else{
+            foundUser.profile.nationality =_.capitalize(req.body.nationality);
+            foundUser.profile.IDno = req.body.IDno;
+            foundUser.profile.maritalStatus = req.body.maritalStatus;
+            foundUser.profile.sex = req.body.sex;
+            foundUser.profile.disability = req.body.disability;
+            foundUser.profile.phoneNo = req.body.phoneNo;
+            foundUser.profile.addrLine1 = req.body.addrLine1;
+            foundUser.profile.addrLine2 = req.body.addrLine2;
+            foundUser.profile_complete=true;
+            foundUser.doc_acc=false;
+            foundUser.save(err=>{
+                if(err){
+                    console.log(err);
+                }else{
                 res.render("signUpPage2");
-               }
-           });
+                }
+            });
         }
     });
 });
+
+//--------------------------------------------------------
+//----------------------LISTENER--------------------------
+//--------------------------------------------------------
 
 const expressServer = app.listen(3000,()=>{
     console.log("Server running at port 3000");
 });
 
-//socketio
+
+//--------------------------------------------------------
+//---------------------SOCKETIO---------------------------
+//--------------------------------------------------------
 
 const io = socketio(expressServer,{pingInterval:5000});
 
 io.on('connection',socket=>{
-    
+
 //--------------------------------------------------------
 //------------------DOCTOR ACCOUNT------------------------
 //--------------------------------------------------------
 
+    //SEND ACCESS TOKEN FOR HEALTHOS 
+    socket.on('sendAccessToken',(data,fn) =>{
+        console.log('Sent request');
+        generateAccessToken().then(generatedToken=>{
+            fn(generatedToken);
+        }).catch(err=>{
+            console.log(err);
+        });
+    });
 
     //POPULATE 'YOUR PATIENT' LIST
     socket.on('sendMyPatients', (loggedInUser,fn)=>{
@@ -469,9 +533,4 @@ io.on('connection',socket=>{
         })
     });
 
-
-
-
-
 });
-
