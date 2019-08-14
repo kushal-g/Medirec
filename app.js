@@ -377,7 +377,7 @@ app.get('/auth/facebook/medirec',
 //-------------------POST REQUESTS------------------------
 //--------------------------------------------------------
 
-app.post("/signup/page2",(req,res)=>{
+app.post("/settings",(req,res)=>{
     const settings = {
         remindersOn:"reminders" in req.body,
         autoOrderOn:"autoOrder" in req.body
@@ -457,7 +457,7 @@ app.post("/socialSignUp",(req,res)=>{
                 if(err){
                     console.log(err);
                 }else{
-                res.render("settings");
+                res.redirect("/addMedicalDetails");
                 }
             });
         }
