@@ -25,6 +25,7 @@ This project aims to reduce the communication gap that may occur between a docto
 - [request](https://www.npmjs.com/package/request)
 - [mongoose](https://mongoosejs.com/)
 - [Passport](http://www.passportjs.org/)
+- [passport-local-mongoose](https://www.npmjs.com/package/passport-local-mongoose)
 - [Lodash](https://lodash.com/)
 - [socket.io](https://socket.io/)
 - [dotenv](https://www.npmjs.com/package/dotenv)
