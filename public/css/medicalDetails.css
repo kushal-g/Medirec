@@ -1,0 +1,28 @@
+.content{
+    width:35rem;
+    text-align: center;
+}
+.display-4{
+    font-size: 2.5rem;
+    padding:2%;
+    margin-top:2%;
+}
+
+#allergyName, #disabilityName, #geneticalName{
+    display:none;
+    margin-bottom: 1em;
+}
+
+
+@media (max-width:576px){
+    
+    .display-4{
+        font-size:2rem;
+        margin-top:8%;
+    }
+
+    .content{
+        width:25rem;
+    }
+
+}

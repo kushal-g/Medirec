@@ -33,6 +33,10 @@ mongoose.set('useCreateIndex', true); //remove deprecation warning
 mongoose.connect("mongodb://localhost:27017/MedirecDB"); //connects to mongodb
 
 
+//--------------------------------------------------------
+//--------------------USER SCHEMA-------------------------
+//--------------------------------------------------------
+
 const userSchema=new mongoose.Schema({
     googleID:String,
     facebookID:String,
@@ -64,6 +68,50 @@ const userSchema=new mongoose.Schema({
         dob:String,
     },
 
+    medical_rec:{
+        
+        pmh:[String], //past medical history
+        sh:[String], //social history
+
+        parent1Username: String,
+        parent2Username:String, 
+
+        geneticDisorder:{ 
+            names:[String],
+            approved: Boolean
+        },
+
+        ancestral_geneticDisorder:[{
+            name: String,
+            relation: String,
+        }],
+
+        allergies:{
+            names: [String],
+            approved:Boolean
+        },
+
+        disabilities:{
+            names: [String],
+            approved:Boolean
+        },
+
+        Entry:[{
+            dateofEntry: Date,
+            entryLogger_id: String,
+            entryLoggerName: String,
+            entryLoggerUsername: String,
+            entryLoggerPhoneNo: String,
+
+            content:[{
+                heading: String,
+                contentUnderHeading:[{
+                    subHeading:String,
+                    body:String
+                }]
+            }]
+        }]
+    },
     profile_complete:Boolean
 });
 
@@ -246,6 +294,24 @@ app.get("/signup",(req,res)=>{
     res.render("signUpPage");
 });
 
+
+app.get("/socialSignUp",(req,res)=>{
+    if(req.isAuthenticated() && !req.user.profile_complete){
+        res.render("socialSignUp",{loggedInAccount:req.user});
+    }else{
+        res.redirect("/");
+    }
+    
+});
+
+app.get("/addMedicalDetails",(req,res)=>{
+    if(req.isAuthenticated()){
+        res.render("medicalDetails",{loggedInAccount:req.user});
+    }else{
+        res.redirect("/");
+    }
+});
+
 app.get("/home",(req,res)=>{
     if(req.isAuthenticated()){
 
@@ -262,7 +328,6 @@ app.get("/home",(req,res)=>{
     }else{
         res.redirect("/");
     }
-    
 });
 
 app.get("/logout",(req,res)=>{
@@ -307,14 +372,6 @@ app.get('/auth/facebook/medirec',
     });
 
 
-app.get("/socialSignUp",(req,res)=>{
-    if(req.isAuthenticated()){
-        res.render("socialSignUp",{loggedInAccount:req.user});
-    }else{
-        res.redirect("/");
-    }
-    
-});
 
 //--------------------------------------------------------
 //-------------------POST REQUESTS------------------------
@@ -348,7 +405,6 @@ app.post("/signup",(req,res)=>{
             IDno:req.body.IDno,
             maritalStatus:req.body.maritalStatus,
             sex:req.body.sex,
-            disability:req.body.disability,
             phoneNo: req.body.phoneNo,
             addrLine1:req.body.addrLine1,
             addrLine2:req.body.addrLine2,
@@ -366,7 +422,7 @@ app.post("/signup",(req,res)=>{
             res.redirect("/signup");
         }else{
             passport.authenticate("local")(req,res,()=>{
-                res.render("signUpPage2");
+                res.redirect("/addMedicalDetails");
             });
         }
     })
@@ -392,7 +448,6 @@ app.post("/socialSignUp",(req,res)=>{
             foundUser.profile.IDno = req.body.IDno;
             foundUser.profile.maritalStatus = req.body.maritalStatus;
             foundUser.profile.sex = req.body.sex;
-            foundUser.profile.disability = req.body.disability;
             foundUser.profile.phoneNo = req.body.phoneNo;
             foundUser.profile.addrLine1 = req.body.addrLine1;
             foundUser.profile.addrLine2 = req.body.addrLine2;
@@ -402,7 +457,7 @@ app.post("/socialSignUp",(req,res)=>{
                 if(err){
                     console.log(err);
                 }else{
-                res.render("signUpPage2");
+                res.render("settings");
                 }
             });
         }
@@ -429,16 +484,6 @@ io.on('connection',socket=>{
 //--------------------------------------------------------
 //------------------DOCTOR ACCOUNT------------------------
 //--------------------------------------------------------
-
-    //SEND ACCESS TOKEN FOR HEALTHOS 
-    socket.on('sendAccessToken',(data,fn) =>{
-        console.log('Sent request');
-        generateAccessToken().then(generatedToken=>{
-            fn(generatedToken);
-        }).catch(err=>{
-            console.log(err);
-        });
-    });
 
     //POPULATE 'YOUR PATIENT' LIST
     socket.on('sendMyPatients', (loggedInUser,fn)=>{
@@ -499,6 +544,15 @@ io.on('connection',socket=>{
 //------------------BOTH ACCOUNTS------------------------
 //--------------------------------------------------------
 
+    //SEND ACCESS TOKEN FOR HEALTHOS 
+    socket.on('sendAccessToken',(data,fn) =>{
+        console.log('Sent request');
+        generateAccessToken().then(generatedToken=>{
+            fn(generatedToken);
+        }).catch(err=>{
+            console.log(err);
+        });
+    });
 
     //POPULATE NOTIFICATIONS
     socket.on('notificationRequest',(loggedInUser,fn)=>{

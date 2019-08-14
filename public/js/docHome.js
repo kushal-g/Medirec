@@ -84,45 +84,34 @@ socket.emit('sendMyPatients',user_id,patients=>{
 
   let patientsHTML="";
   patients.data.forEach(patient=>{
-    patientsHTML += `<li class="list-group-item">
+    //TODO: Add latest entry heading/ allergies disorders etc in a column
+    patientsHTML += `<a class="list-group-item list-group-item-action px-5">
     <div class="row">          
-        <div class="col-4">
+        <div class="col">
         ${patient.profile.firstName} ${patient.profile.lastName}
         </div>
+        
+    </div>
+    <div class="row">
         <div class="col text-muted">
           ${patient.username}
         </div>
-        <div class="col-auto my-auto patientManip">
-          <input type="hidden" class="patientID" value="${patient._id}">
-          <a role="button" class="fas fa-eye mx-2"  data-toggle="tooltip" data-placement="top" title="View records"> </a>
-          <a role="button" class="fas fa-pen-fancy mx-2"  data-toggle="tooltip" data-placement="top" title="Add new entry">  </a>
-          <a role="button" class="mx-2"> <img class="heart-tick" src="images/heart-tick.png" data-toggle="tooltip" data-placement="top" title="Complete treatment"></a>
-        </div>
     </div>
-</li>`
+</a>`
   });
 
   $('#patientsList').html(patientsHTML); //Inserts patients in flow of document
-  $('[data-toggle="tooltip"]').tooltip( {delay: { "hide": 200 }}); //Initialises tooltips
-
-
 
   
   //Patient Mainpulation
-  $('.patientManip').children('a').click(e=>{
-    let accessToken;
-    const optionSelected = $(e.target).attr('data-original-title');
-    const patientSelected = $(e.currentTarget).siblings('input[type="hidden"]').val();
-    
-    
 
-    socket.emit('sendAccessToken',{},token=>{
+  /* socket.emit('sendAccessToken',{},token=>{
       accessToken = token;
       console.log(accessToken);
 
       //autocomplete feature
       var settings = {
-        "url": "http://www.healthos.co/api/v1/autocomplete/medicines/brands/combiflam",
+        "url": "http://www.healthos.co/api/v1/search/diseases/allergic",
         "method": "GET",
         "timeout": 0,
         "headers": {
@@ -132,15 +121,8 @@ socket.emit('sendMyPatients',user_id,patients=>{
       
       $.ajax(settings).done(function (response) {
         console.log(response);
-      }); 
-
-
-    });
-
-
-
-    
-  });
+      });
+  }); */
   
 });
 

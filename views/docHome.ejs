@@ -8,18 +8,12 @@
 <nav class="navbar navbar-expand-md sticky-top navbar-dark">
     
     <div class="btn-group">
-        <button type="button" class="btn navbar-brand pr-0 mr-0">Hi, <%= loggedInAccount.profile.firstName %>!</button>
+        <button type="button" class="btn navbar-brand pr-0 mr-0">Hi, Dr. <%= loggedInAccount.profile.firstName %>!</button>
         <button type="button" class="btn dropdown-toggle-split pl-0 ml-1 mt-1" data-toggle="dropdown">
                 <span class="badge badge-light"></span>
         </button>
         <div class="dropdown-menu notificationMenu">
-            <a class="dropdown-item" href="#">Notification 1</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Notification 2</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Notification 3</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Notification 4</a>
+            <!--NOTIFICATIONS GO HERE-->
         </div>
     </div>
 
@@ -61,7 +55,7 @@
             <li class="nav-item mt-2">
                 <a class="nav-link" href="/logout" role="tab">Log Out</a>
             </li>
-                 
+            
         </ul>
     </div>
 </nav>
@@ -72,22 +66,22 @@
     <div class="tab-pane fade show active" id="patients" role="tabpanel">
 
         <div class="card">
-                <div class="card-header">
+                <div class="card-header px-5 py-3">
                     <h5>Your Patients</h5>
                 </div>
-            <ul class="list-group list-group-flush" id="patientsList">
+            <div class="list-group list-group-flush" id="patientsList">
             <!-- PATIENTS LIST HERE-->
-            </ul>
+            </div>
         </div>
 
     </div>
     <div class="tab-pane fade" id="searchResult" role="tabpanel">
         <div class="card">
-                <div class="card-header">
+                <div class="card-header px-5 py-3">
                     <h5>Search Result</h5>
                 </div>
                 <div class="container-fluid">
-                    <ul class="list-group list-group-flush" id="searchResultList">
+                    <ul class="list-group list-group-flush px-5" id="searchResultList">
                         <!--SEARCH RESULTS HERE-->
                     </ul>
                 </div>

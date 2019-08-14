@@ -1,0 +1,81 @@
+<%- include('partials/header',{title:"Enter Details", pageCSS:"css/medicalDetails.css"})%>
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.0.0/css/bootstrap-switch-button.min.css" rel="stylesheet">  
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.0.0/js/bootstrap-switch-button.min.js"></script>
+
+<div class="content mx-auto">
+    <h2 class="display-4 text-left px-3 mb-0">Hey, <%= loggedInAccount.profile.firstName %></h2>
+    <form action="/addMedicalDetails" method="post" onsubmit="return valid()">
+    
+    <div class="container-fluid">
+
+        <!--Allergies-->
+            <div class="row">
+                <div class="col">
+                    <p class="lead text-left px-3">Do you have any allergies?</p>
+                </div>
+                <div class="col-auto">
+                    <span id="allergyCheck">
+                            <input type="checkbox" name="allergyCheck"  data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yes" data-offlabel="No">
+                    </span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col px-4">
+                    <input type="text" class="form-control" placeholder="Name of Allergy" id="allergyName" name="allergyName">
+                </div>
+            </div>
+            
+            <!--Disabilities-->
+            <div class="row">
+                <div class="col">
+                    <p class="lead text-left px-3">Do you have any disabilities?</p>
+                </div>
+                <div class="col-auto">
+                    <span id="disabilityCheck">
+                            <input type="checkbox" name="disabilityCheck"  data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yes" data-offlabel="No">
+                    </span>
+                </div>
+            </div>
+    
+            <div class="row">
+                <div class="col px-4">
+                    <input type="text" class="form-control" placeholder="Name of Disability" id="disabilityName" name="disabilityName">
+                </div>
+            </div>
+
+            <!--Disabilities-->
+            <div class="row">
+                <div class="col">
+                    <p class="lead text-left px-3">Do you have any genetical disorders?</p>
+                </div>
+                <div class="col-auto">
+                    <span id="geneticalCheck">
+                            <input type="checkbox" name="geneticalCheck"  data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yes" data-offlabel="No">
+                    </span>
+                </div>
+            </div>
+    
+            <div class="row">
+                <div class="col px-4">
+                    <input type="text" class="form-control" placeholder="Name of Genetical Disorder" id="geneticalName" name="geneticalName">
+                </div>
+            </div>
+
+
+
+            <div class="row mt-2">
+                    <div class="col">
+                        <a href="/logout" role="button" class="btn btn-outline-danger btn-block">Go back</a>
+                    </div>
+                    <div class="col">
+                        <input type="submit" class="btn btn-info btn-block" value="Proceed">
+                    </div>
+                </div>
+        </form>
+
+    </div>
+</div>
+
+<script src="bower_components/validator-js/validator.min.js"></script>
+<%- include('partials/footer',{pageJS:"js/medicalDetails.js"})%>
