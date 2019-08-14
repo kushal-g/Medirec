@@ -30,6 +30,7 @@ This project aims to reduce the communication gap that may occur between a docto
 - [dotenv](https://www.npmjs.com/package/dotenv)
 - [bower](https://bower.io/)
 - [validator.js](https://github.com/validatorjs/validator.js)
+- [healthOS api](http://www.healthos.co)
 
 ## What currently works
 
