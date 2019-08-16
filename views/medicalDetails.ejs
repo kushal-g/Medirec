@@ -4,7 +4,8 @@
 
 <div class="content mx-auto">
     <h2 class="display-4 text-left px-3 mb-0">Hey, <%= loggedInAccount.profile.firstName %></h2>
-    <form action="/addMedicalDetails" method="post" onsubmit="return valid()">
+    
+    <form action="/addMedicalDetails" method="post">
     
     <div class="container-fluid">
 
@@ -44,21 +45,21 @@
                 </div>
             </div>
 
-            <!--Disabilities-->
+            <!--Genetic Disorder-->
             <div class="row">
                 <div class="col">
-                    <p class="lead text-left px-3">Do you have any genetical disorders?</p>
+                    <p class="lead text-left px-3">Do you have any Genetic disorders?</p>
                 </div>
                 <div class="col-auto">
-                    <span id="geneticalCheck">
-                            <input type="checkbox" name="geneticalCheck"  data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yes" data-offlabel="No">
+                    <span id="geneticDisorderCheck">
+                            <input type="checkbox" name="geneticDisorderCheck"  data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yes" data-offlabel="No">
                     </span>
                 </div>
             </div>
     
             <div class="row">
                 <div class="col px-4">
-                    <input type="text" class="form-control" placeholder="Name of Genetical Disorder" id="geneticalName" name="geneticalName">
+                    <input type="text" class="form-control" placeholder="Name of Genetic Disorder" id="geneticDisorderName" name="geneticDisorderName">
                 </div>
             </div>
 

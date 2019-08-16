@@ -6,7 +6,7 @@ socket.emit("sendAccessToken",{},accessToken=>{
     $('#allergyName').keyup(e=>{
         
         const diseaseQuery = $(e.target).val();
-        console.log(diseaseQuery);
+        
         var settings = {
             "url": `http://www.healthos.co/api/v1/autocomplete/diseases/${diseaseQuery}`,
             "method": "GET",
@@ -17,7 +17,6 @@ socket.emit("sendAccessToken",{},accessToken=>{
         };
 
         $.ajax(settings).done(function (response) {
-            console.log(response);
 
             const suggestions_json = response.filter(disease => disease.disease_cat.includes('Immune diseases') );
 
@@ -29,12 +28,11 @@ socket.emit("sendAccessToken",{},accessToken=>{
                 });
             }
 
-            console.log(suggestions);
             $(function(){
 
                 $( "#allergyName" ).autocomplete({
                     source: suggestions,
-                    minLength: 3
+                    minLength: 0
                 })
                 .autocomplete( "instance" )._renderItem = function( ul, disease ) {
                     return $( "<li>" )
@@ -46,13 +44,47 @@ socket.emit("sendAccessToken",{},accessToken=>{
         });
     });
 
-    $('#disabilityName').keydown(e=>{
-        console.log($(e.target).val());
+    $('#disabilityName').keyup(e=>{
+        const diseaseQuery = $(e.target).val();
+        
+        var settings = {
+            "url": `http://www.healthos.co/api/v1/autocomplete/diseases/${diseaseQuery}`,
+            "method": "GET",
+            "timeout": 0,
+            "headers": {
+                "Authorization": `Bearer ${accessToken}`
+            },
+        };
+
+        $.ajax(settings).done(function (response) {
+
+            let suggestions=[];
+            for(let i=0;i<response.length;i++){
+                suggestions.push({
+                    label:response[i].disease_name,
+                    desc:response[i].disease_info
+                });
+            }
+
+            $(function(){
+
+                $( "#disabilityName" ).autocomplete({
+                    source: suggestions,
+                    minLength: 0
+                })
+                .autocomplete( "instance" )._renderItem = function( ul, disease ) {
+                    return $( "<li>" )
+                    .append( `<div> ${disease.label} </div> <div class='text-muted'> ${disease.desc.substring(0,70)}...</div><div class='dropdown-divider'></div>` )
+                    .appendTo( ul );
+                };
+            });
+            
+        });
     });
 
-    $('#geneticalName').keyup(e=>{
+    $('#geneticDisorderName').keyup(e=>{
         const diseaseQuery = $(e.target).val();
-        console.log(diseaseQuery);
+
         var settings = {
             "url": `http://www.healthos.co/api/v1/autocomplete/diseases/${diseaseQuery}`,
             "method": "GET",
@@ -78,9 +110,9 @@ socket.emit("sendAccessToken",{},accessToken=>{
             console.log(suggestions);
             $(function(){
 
-                $( "#geneticalName" ).autocomplete({
+                $( "#geneticDisorderName" ).autocomplete({
                     source: suggestions,
-                    minLength: 3
+                    minLength: 0
                 })
                 .autocomplete( "instance" )._renderItem = function( ul, disease ) {
                     return $( "<li>" )
@@ -106,6 +138,6 @@ $('#disabilityCheck').click(e=>{
     $('#disabilityName').slideToggle();
 })
 
-$('#geneticalCheck').click(e=>{
-    $('#geneticalName').slideToggle();
+$('#geneticDisorderCheck').click(e=>{
+    $('#geneticDisorderName').slideToggle();
 })

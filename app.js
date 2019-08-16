@@ -76,7 +76,7 @@ const userSchema=new mongoose.Schema({
         parent1Username: String,
         parent2Username:String, 
 
-        geneticDisorder:{ 
+        geneticDisorders:{ 
             names:[String],
             approved: Boolean
         },
@@ -312,6 +312,14 @@ app.get("/addMedicalDetails",(req,res)=>{
     }
 });
 
+app.get("/settings",(req,res)=>{
+    if(req.isAuthenticated()){
+        res.render("settings");
+    }else{
+        res.redirect("/");
+    }
+})
+
 app.get("/home",(req,res)=>{
     if(req.isAuthenticated()){
 
@@ -428,17 +436,6 @@ app.post("/signup",(req,res)=>{
     })
 });
 
-app.post("/login",(req,res)=>{
-    const user = new User({
-        username:req.body.username,
-        password:req.body.password
-    });
-
-    passport.authenticate('local',{failureRedirect:"/",failureMessage:"Incorrect Email or Password"})(req,res,()=>{
-        res.redirect("/home");
-    })
-});
-
 app.post("/socialSignUp",(req,res)=>{
     User.findById(req.user.id,(err,foundUser)=>{
         if(err){
@@ -463,6 +460,88 @@ app.post("/socialSignUp",(req,res)=>{
         }
     });
 });
+
+app.post("/addMedicalDetails",(req,res)=>{
+    const allergiesPresent = "allergyCheck" in req.body;
+    const disabiltiesPresent = "disabilityCheck" in req.body;
+    const geneticDisordersPresent = "geneticDisorderCheck" in req.body;
+    console.log(allergiesPresent,disabiltiesPresent,geneticDisordersPresent);
+    console.log(req.body);
+
+    /* medical_rec:{
+        
+        pmh:[String], //past medical history
+        sh:[String], //social history
+
+        parent1Username: String,
+        parent2Username:String, 
+
+        geneticDisorders:{ 
+            names:[String],
+            approved: Boolean
+        },
+
+        ancestral_geneticDisorder:[{
+            name: String,
+            relation: String,
+        }],
+
+        allergies:{
+            names: [String],
+            approved:Boolean
+        },
+
+        disabilities:{
+            names: [String],
+            approved:Boolean
+        }, */
+
+
+    User.findById(req.user.id,(err,foundUser)=>{
+        if(err){
+            console.log(err);
+        }else{
+            
+            if(allergiesPresent){
+                foundUser.medical_rec.allergies={
+                    names:req.body.allergyName,
+                    approved:false
+                }
+            }
+
+            if(disabiltiesPresent){
+                foundUser.medical_rec.disabilities={
+                    names:req.body.disabilityName,
+                    approved:false
+                }
+            }
+
+            if(geneticDisordersPresent){
+                foundUser.medical_rec.geneticDisorders={
+                    names:req.body.geneticDisorderName,
+                    approved:false
+                }
+            }
+
+            foundUser.save(err=>{
+                if(err){console.log(err)}
+                else{res.redirect("/settings")};
+            })
+        }
+    })
+});
+
+app.post("/login",(req,res)=>{
+    const user = new User({
+        username:req.body.username,
+        password:req.body.password
+    });
+
+    passport.authenticate('local',{failureRedirect:"/",failureMessage:"Incorrect Email or Password"})(req,res,()=>{
+        res.redirect("/home");
+    })
+});
+
 
 //--------------------------------------------------------
 //----------------------LISTENER--------------------------
