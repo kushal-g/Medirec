@@ -20,7 +20,10 @@ app.use('/bower_components',  express.static(__dirname + '/bower_components')); 
 app.use(session({   //session to start with these settings
     secret:process.env.SECRET_STRING,
     resave:false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie : {
+        maxAge: 1000* 60 * 60 *24 * 365
+    } //stores cookie for one year
 }));
 app.use(passport.initialize()); //initializes passport
 app.use(passport.session());    //begins session
@@ -74,7 +77,8 @@ const userSchema=new mongoose.Schema({
         sh:[String], //social history
 
         parent1Username: String,
-        parent2Username:String, 
+        parent2Username:String,
+        children: [String], 
 
         geneticDisorders:{ 
             names:[String],
@@ -312,13 +316,21 @@ app.get("/addMedicalDetails",(req,res)=>{
     }
 });
 
+app.get("/addParentDetails",(req,res)=>{
+    if(req.isAuthenticated()){
+        res.render("addParentDetails",{loggedInAccount:req.user});
+    }else{
+        res.redirect("/");
+    }
+});
+
 app.get("/settings",(req,res)=>{
     if(req.isAuthenticated()){
         res.render("settings");
     }else{
         res.redirect("/");
     }
-})
+});
 
 app.get("/home",(req,res)=>{
     if(req.isAuthenticated()){
@@ -465,8 +477,6 @@ app.post("/addMedicalDetails",(req,res)=>{
     const allergiesPresent = "allergyCheck" in req.body;
     const disabiltiesPresent = "disabilityCheck" in req.body;
     const geneticDisordersPresent = "geneticDisorderCheck" in req.body;
-    console.log(allergiesPresent,disabiltiesPresent,geneticDisordersPresent);
-    console.log(req.body);
 
     /* medical_rec:{
         
@@ -531,6 +541,33 @@ app.post("/addMedicalDetails",(req,res)=>{
     })
 });
 
+app.post("/addParentDetails",(req,res)=>{
+    const parentsOnMedirec = 'parentsCheck' in req.body;
+    if(parentsOnMedirec){
+        if(req.body.numOfParents === '1'){
+
+            User.findOne({username:req.body.parent1Username},(err,foundUser)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    console.log(foundUser);
+                    //save found user (parent) in req.user
+                    //find genetical disorders in family tree
+                    //push all to [ancestral_geneticDisorder]
+                    res.render("allSet");
+                }
+            })
+
+        }else if(req.body.numOfParents==='2'){
+
+        }
+    }else{
+        res.render("allSet");
+    }
+    console.log(req.body);
+});
+
+
 app.post("/login",(req,res)=>{
     const user = new User({
         username:req.body.username,
@@ -542,7 +579,25 @@ app.post("/login",(req,res)=>{
     })
 });
 
-
+//API CALLS
+app.get("/usercheck",(req,res)=>{
+    if(req.query.username!=req.user.username){
+        User.findOne({username:req.query.username},(err,foundUser)=>{
+            if(err){
+                console.log(err);
+            }else{
+                if(foundUser){
+                    res.send(true);
+                }else{
+                    res.send(false);
+                }
+            }
+        })
+    }else{
+        res.send(false);
+    }
+    
+});
 //--------------------------------------------------------
 //----------------------LISTENER--------------------------
 //--------------------------------------------------------
@@ -644,7 +699,7 @@ io.on('connection',socket=>{
         });
     })
     
-    //REJECT ADD REQUEST
+    //REJECT DOCTOR ADD REQUEST
     socket.on('rejectRequest',(data,fn)=>{
         User.findByIdAndUpdate(data.loggedInUser,{$pull: { docAssignment_req: { _id: data.rejectDoctor } }},err=>{
             if(err){console.log(err)}
@@ -652,7 +707,7 @@ io.on('connection',socket=>{
         })
     })
 
-    //ACCEPT ADD REQUEST
+    //ACCEPT DOCTOR ADD REQUEST
     socket.on('acceptRequest',(data,fn)=>{
 
         console.log(data);
@@ -665,5 +720,11 @@ io.on('connection',socket=>{
             else{fn(true)};
         })
     });
+
+    //CHECK IF SEX OF BOTH PARENTS IS SAME
+    socket.on('checkSameSex',(data,fn)=>{
+        console.log(data);
+        fn(false);
+    })
 
 });

@@ -1,0 +1,89 @@
+<%- include('partials/header',{title:"Sign Up!", pageCSS:"css/addParentDetails.css"})%>
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.0.0/css/bootstrap-switch-button.min.css" rel="stylesheet">  
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.0.0/js/bootstrap-switch-button.min.js"></script>
+
+<div class="content mx-auto">
+        <h2 class="display-4 text-left px-3 mb-0">Hey, <%= loggedInAccount.profile.firstName %></h2>
+        
+        <form action="/addParentDetails" method="post">
+        
+        <div class="container-fluid">
+    
+    
+                <div class="row">
+                    <div class="col">
+                        <p class="lead text-left px-3">Are any of your biological parents on Medirec?</p>
+                    </div>
+                    <div class="col-auto">
+                        <span id="parentsCheck">
+                                <input type="checkbox" name="parentsCheck"  data-toggle="switchbutton" data-onstyle="info" data-onlabel="Yes" data-offlabel="No">
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="row formContent">
+                    <div class="container-fluid">
+                            <div class="row">
+                                    <div class="col">
+                                        <p class="lead text-left px-3">How many of them are on Medirec?</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="input-group mb-3">
+                                            <select class="custom-select" id="numOfParents" name="numOfParents">
+                                                <option value="1" selected>Only One</option>
+                                                <option value="2">Both of them</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                        
+                                <div class="row">
+                                    <div class="col px-4">
+                                        <input type="email" class="form-control" placeholder="Email address of Parent 1" id="parent1Username" name="parent1Username">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col my-1 parent1Warning">
+                                        User with that email doesn't exist
+                                    </div>
+                                </div>
+
+                                <div class="parent2Wrapper">
+                                    <div class="row">
+                                        <div class="col px-4 mt-2">
+                                            <input type="email" class="form-control" placeholder="Email address of Parent 2" id="parent2Username" name="parent2Username">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col my-1 parent2Warning">
+                                            User with that email doesn't exist
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col my-1 sameSexWarning">
+                                            Both your parents cannot be of same sex
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                    </div>
+                </div>
+                
+    
+    
+                <div class="row mt-2">
+                        <div class="col">
+                            <a href="/logout" role="button" class="btn btn-outline-danger btn-block">Go back</a>
+                        </div>
+                        <div class="col">
+                            <input type="submit" class="btn btn-info btn-block" value="Proceed" id="proceed">
+                        </div>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+<%- include('partials/footer',{pageJS:"js/addParentDetails.js"})%>
