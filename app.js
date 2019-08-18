@@ -478,35 +478,6 @@ app.post("/addMedicalDetails",(req,res)=>{
     const disabiltiesPresent = "disabilityCheck" in req.body;
     const geneticDisordersPresent = "geneticDisorderCheck" in req.body;
 
-    /* medical_rec:{
-        
-        pmh:[String], //past medical history
-        sh:[String], //social history
-
-        parent1Username: String,
-        parent2Username:String, 
-
-        geneticDisorders:{ 
-            names:[String],
-            approved: Boolean
-        },
-
-        ancestral_geneticDisorder:[{
-            name: String,
-            relation: String,
-        }],
-
-        allergies:{
-            names: [String],
-            approved:Boolean
-        },
-
-        disabilities:{
-            names: [String],
-            approved:Boolean
-        }, */
-
-
     User.findById(req.user.id,(err,foundUser)=>{
         if(err){
             console.log(err);
@@ -550,7 +521,10 @@ app.post("/addParentDetails",(req,res)=>{
                 if(err){
                     console.log(err);
                 }else{
+                    
+                    foundUser.children.push(req.user.id)
                     console.log(foundUser);
+                    //save req.user in children of found user(parent)
                     //save found user (parent) in req.user
                     //find genetical disorders in family tree
                     //push all to [ancestral_geneticDisorder]
@@ -740,6 +714,8 @@ io.on('connection',socket=>{
             sameSexChecker(data.parent2Username).then(parent2Sex=>{
                 fn(parent1Sex==parent2Sex);
             })
+        }).catch(err=>{
+            console.log(err);
         })
     })
 
