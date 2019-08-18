@@ -521,24 +521,80 @@ app.post("/addParentDetails",(req,res)=>{
                 if(err){
                     console.log(err);
                 }else{
-                    
-                    foundUser.children.push(req.user.id)
-                    console.log(foundUser);
-                    //save req.user in children of found user(parent)
-                    //save found user (parent) in req.user
+                    foundUser.medical_rec.children.push(req.user.id);
+                    foundUser.medical_rec.children=_.uniq(foundUser.medical_rec.children);
+                    foundUser.save(err=>{
+                        console.log(err);
+                    })
+
                     //find genetical disorders in family tree
                     //push all to [ancestral_geneticDisorder]
                     res.render("allSet");
                 }
             })
 
+            User.findById(req.user.id,(err,foundUser)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    foundUser.medical_rec.parent1Username = req.body.parent1Username;
+                    foundUser.save(err=>{
+                        console.log(err);
+                    });
+                }
+            })
+
         }else if(req.body.numOfParents==='2'){
 
+            User.findOne({username:req.body.parent1Username},(err,foundUser)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    foundUser.medical_rec.children.push(req.user.id);
+                    foundUser.medical_rec.children=_.uniq(foundUser.medical_rec.children);
+                    foundUser.save(err=>{
+                        console.log(err);
+                    })
+
+                    //find genetical disorders in family tree
+                    //push all to [ancestral_geneticDisorder]
+
+                }
+            })
+
+            User.findOne({username:req.body.parent2Username},(err,foundUser)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    foundUser.medical_rec.children.push(req.user.id);
+                    foundUser.medical_rec.children=_.uniq(foundUser.medical_rec.children);
+                    foundUser.save(err=>{
+                        console.log(err);
+                    })
+
+                    //find genetical disorders in family tree
+                    //push all to [ancestral_geneticDisorder]
+        
+                }
+            })
+
+            User.findById(req.user.id,(err,foundUser)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    foundUser.medical_rec.parent1Username = req.body.parent1Username;
+                    foundUser.medical_rec.parent2Username = req.body.parent2Username;
+                    foundUser.save(err=>{
+                        if(err){console.log(err)}
+                        else{res.render("allSet")}
+                    });
+                }
+            })
         }
     }else{
         res.render("allSet");
     }
-    console.log(req.body);
+    
 });
 
 
@@ -683,8 +739,6 @@ io.on('connection',socket=>{
 
     //ACCEPT DOCTOR ADD REQUEST
     socket.on('acceptRequest',(data,fn)=>{
-
-        console.log(data);
         User.findByIdAndUpdate(data.loggedInUser,{$pull: { docAssignment_req: { _id: data.acceptDoctor } }},err=>{
             if(err){console.log(err)}
         })
