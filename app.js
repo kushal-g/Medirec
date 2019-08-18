@@ -723,8 +723,31 @@ io.on('connection',socket=>{
 
     //CHECK IF SEX OF BOTH PARENTS IS SAME
     socket.on('checkSameSex',(data,fn)=>{
-        console.log(data);
-        fn(false);
+
+        let parent1Sex, parent2Sex;
+        User.findOne({username:data.parent1Username},(err,foundUser)=>{
+            if(err){
+                console.log(err);
+            }else{
+                parent1Sex = foundUser.profile.sex;
+                User.findOne({username:data.parent2Username},(err,foundUser)=>{
+                    if(err){
+                        console.log(err);
+                    }else{
+                        parent2Sex = foundUser.profile.sex;
+                        console.log(parent1Sex, parent1Sex);
+                        if(parent1Sex == parent2Sex){
+                            fn(true);
+                        }else{
+                            fn(false);
+                        }
+                    }
+                })
+            }
+        })
+
+        
+
     })
 
 });
