@@ -6,8 +6,27 @@ let username2Condition=false;
 let sameSexCondition=false;
 
 $('#parentsCheck').click(e=>{
+
+    if($(e.currentTarget).children("div").first().hasClass("off")){
+        $("#proceed").prop('disabled', false);
+    }else{
+        if($('#numOfParents').val()==2){
+
+            if(username1Condition&&username2Condition&&sameSexCondition){
+                $("#proceed").prop('disabled', false);
+            }else{
+                $("#proceed").prop('disabled', true);
+            }
+
+        }else{
+            if(username1Condition){
+                $("#proceed").prop('disabled', false);
+            }else{
+                $("#proceed").prop('disabled', true);
+            }
+        }
+    }
     $('.formContent').slideToggle();
-    $("#proceed").prop('disabled', !$("#proceed").prop('disabled'));
 })
 
 $('#numOfParents').change(e=>{
@@ -80,7 +99,7 @@ $('#parent2Username').keyup(e=>{
                     parent1Username:$('#parent1Username').val(),
                     parent2Username:$('#parent2Username').val()
                 },sameSex=>{
-                    console.log(sameSex);
+                    sameSexCondition=!sameSex;
                     if(sameSex){
                         $("#proceed").prop('disabled', true);
                         $('.sameSexWarning').slideDown();
