@@ -724,30 +724,23 @@ io.on('connection',socket=>{
     //CHECK IF SEX OF BOTH PARENTS IS SAME
     socket.on('checkSameSex',(data,fn)=>{
 
-        let parent1Sex, parent2Sex;
-        User.findOne({username:data.parent1Username},(err,foundUser)=>{
-            if(err){
-                console.log(err);
-            }else{
-                parent1Sex = foundUser.profile.sex;
-                User.findOne({username:data.parent2Username},(err,foundUser)=>{
+        const sameSexChecker = function(username) {
+            return new Promise(function(resolve, reject) {
+                User.findOne({username:username},(err,foundUser)=>{
                     if(err){
-                        console.log(err);
+                        reject(err);
                     }else{
-                        parent2Sex = foundUser.profile.sex;
-                        console.log(parent1Sex, parent1Sex);
-                        if(parent1Sex == parent2Sex){
-                            fn(true);
-                        }else{
-                            fn(false);
-                        }
+                        resolve(foundUser.profile.sex);
                     }
                 })
-            }
+            });
+        }
+
+        sameSexChecker(data.parent1Username).then(parent1Sex=>{
+            sameSexChecker(data.parent2Username).then(parent2Sex=>{
+                fn(parent1Sex==parent2Sex);
+            })
         })
-
-        
-
     })
 
 });
