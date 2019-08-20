@@ -85,10 +85,7 @@ const userSchema=new mongoose.Schema({
             approved: Boolean
         },
 
-        ancestral_geneticDisorder:[{
-            name: String,
-            relation: String,
-        }],
+        ancestral_geneticDisorders:[],
 
         allergies:{
             names: [String],
@@ -120,8 +117,30 @@ const userSchema=new mongoose.Schema({
 });
 
 userSchema.plugin(passportLocalMongoose);
+//--------------------------------------------------------
+//-------------------SCHEMA HOOKS-------------------------
+//--------------------------------------------------------
+
+userSchema.post("updateOne",function(doc,next){
+    if('medical_rec.ancestral_geneticDisorders' in this.getUpdate()){
+        console.log("Ancestral Genetic Disorder updated")
+        //update the family tree
+    }
+    if('medical_rec.geneticDisorders' in this.getUpdate()){
+        console.log("Genetic Disorders Updated")
+         //update the family tree
+    }
+    next();
+})
 
 const User = mongoose.model('userAccount',userSchema);
+
+
+
+
+//--------------------------------------------------------
+//---------------PASSPORT STRATEGIES----------------------
+//--------------------------------------------------------
 
 passport.use(User.createStrategy()); //creates local strategy for login by using passportLocalMongoose plugin
 
@@ -517,79 +536,66 @@ app.post("/addParentDetails",(req,res)=>{
     if(parentsOnMedirec){
         if(req.body.numOfParents === '1'){
 
-            User.findOne({username:req.body.parent1Username},(err,foundUser)=>{
+            let geneticDisordersInFamily = [];
+
+            //finds parent and inserts child in the array
+            User.findOneAndUpdate({username:req.body.parent1Username},{$addToSet:{"medical_rec.children":req.user.id}},(err,foundUser)=>{
                 if(err){
                     console.log(err);
                 }else{
-                    foundUser.medical_rec.children.push(req.user.id);
-                    foundUser.medical_rec.children=_.uniq(foundUser.medical_rec.children);
-                    foundUser.save(err=>{
-                        console.log(err);
-                    })
 
-                    //find genetical disorders in family tree
-                    //push all to [ancestral_geneticDisorder]
-                    res.render("allSet");
-                }
-            })
+                    //inserts all genetical disorders and ancestral genetical disorders in an array
+                    //TODO: test if this works when the fields are absent
+                    geneticDisordersInFamily.push(foundUser.medical_rec.ancestral_geneticDisorders);
+                    if(foundUser.medical_rec.geneticDisorders.approved){
+                        geneticDisordersInFamily.push(foundUser.medical_rec.geneticDisorders.names)
+                    }
+                    geneticDisordersInFamily = _.uniq(_.flatten(geneticDisordersInFamily));
+                
+                    //saves the parent in user's data and make ancestral genetic disorder data field equal to new array
+                    //TODO: test if assigning directly is better or if $addtoset is better
 
-            User.findById(req.user.id,(err,foundUser)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                    foundUser.medical_rec.parent1Username = req.body.parent1Username;
-                    foundUser.save(err=>{
-                        console.log(err);
-                    });
-                }
-            })
-
-        }else if(req.body.numOfParents==='2'){
-
-            User.findOne({username:req.body.parent1Username},(err,foundUser)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                    foundUser.medical_rec.children.push(req.user.id);
-                    foundUser.medical_rec.children=_.uniq(foundUser.medical_rec.children);
-                    foundUser.save(err=>{
-                        console.log(err);
-                    })
-
-                    //find genetical disorders in family tree
-                    //push all to [ancestral_geneticDisorder]
-
-                }
-            })
-
-            User.findOne({username:req.body.parent2Username},(err,foundUser)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                    foundUser.medical_rec.children.push(req.user.id);
-                    foundUser.medical_rec.children=_.uniq(foundUser.medical_rec.children);
-                    foundUser.save(err=>{
-                        console.log(err);
-                    })
-
-                    //find genetical disorders in family tree
-                    //push all to [ancestral_geneticDisorder]
-        
-                }
-            })
-
-            User.findById(req.user.id,(err,foundUser)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                    foundUser.medical_rec.parent1Username = req.body.parent1Username;
-                    foundUser.medical_rec.parent2Username = req.body.parent2Username;
-                    foundUser.save(err=>{
+                    User.updateOne({_id:req.user.id},{
+                        "medical_rec.parent1Username":req.body.parent1Username,
+                        "medical_rec.ancestral_geneticDisorders":geneticDisordersInFamily
+                    },err=>{
                         if(err){console.log(err)}
                         else{res.render("allSet")}
-                    });
+                    })
                 }
             })
+            
+        }else if(req.body.numOfParents==='2'){
+
+            //pushes child in parent 1's data
+
+            User.updateOne({username:req.body.parent1Username},{$addToSet:{"medical_rec.children":req.user.id}},err=>{
+                if(err){console.log(err)}
+                else{
+                    //find genetical disorders in family tree
+                    //push all to [ancestral_geneticDisorders]
+                }
+            })
+
+
+            //pushes child in parent 2's data
+            User.updateOne({username:req.body.parent2Username},{$addToSet:{"medical_rec.children":req.user.id}},err=>{
+                if(err){console.log(err)}
+                else{
+                    //find genetical disorders in family tree
+                    //push all to [ancestral_geneticDisorders]
+                }
+            })
+
+            //pushes parents in child's data
+            User.updateOne({_id:req.user.id},{
+                "medical_rec.parent1Username":req.body.parent1Username,
+                "medical_rec.parent2Username":req.body.parent2Username,
+            },err=>{
+                if(err){console.log(err)}
+                else{res.render("allSet")}
+            })
+
         }
     }else{
         res.render("allSet");
