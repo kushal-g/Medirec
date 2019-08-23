@@ -13,6 +13,9 @@
     margin-bottom: 1em;
 }
 
+.ui-autocomplete-loading {
+    background: white url(/images/loading.gif) right 0.5em center no-repeat;
+}
 
 @media (max-width:576px){
     

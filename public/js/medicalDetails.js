@@ -1,135 +1,3 @@
-socket = io("http://localhost:3000");
-
-socket.emit("sendAccessToken",{},accessToken=>{
-    console.log(accessToken);
-
-    $('#allergyName').keyup(e=>{
-        
-        const diseaseQuery = $(e.target).val();
-        
-        var settings = {
-            "url": `http://www.healthos.co/api/v1/autocomplete/diseases/${diseaseQuery}`,
-            "method": "GET",
-            "timeout": 0,
-            "headers": {
-                "Authorization": `Bearer ${accessToken}`
-            },
-        };
-
-        $.ajax(settings).done(function (response) {
-
-            const suggestions_json = response.filter(disease => disease.disease_cat.includes('Immune diseases') );
-
-            let suggestions=[];
-            for(let i=0;i<suggestions_json.length;i++){
-                suggestions.push({
-                    label:suggestions_json[i].disease_name,
-                    desc:suggestions_json[i].disease_info
-                });
-            }
-
-            $(function(){
-
-                $( "#allergyName" ).autocomplete({
-                    source: suggestions,
-                    minLength: 0
-                })
-                .autocomplete( "instance" )._renderItem = function( ul, disease ) {
-                    return $( "<li>" )
-                    .append( `<div> ${disease.label} </div> <div class='text-muted'> ${disease.desc.substring(0,70)}...</div><div class='dropdown-divider'></div>` )
-                    .appendTo( ul );
-                };
-            });
-            
-        });
-    });
-
-    $('#disabilityName').keyup(e=>{
-        const diseaseQuery = $(e.target).val();
-        
-        var settings = {
-            "url": `http://www.healthos.co/api/v1/autocomplete/diseases/${diseaseQuery}`,
-            "method": "GET",
-            "timeout": 0,
-            "headers": {
-                "Authorization": `Bearer ${accessToken}`
-            },
-        };
-
-        $.ajax(settings).done(function (response) {
-
-            let suggestions=[];
-            for(let i=0;i<response.length;i++){
-                suggestions.push({
-                    label:response[i].disease_name,
-                    desc:response[i].disease_info
-                });
-            }
-
-            $(function(){
-
-                $( "#disabilityName" ).autocomplete({
-                    source: suggestions,
-                    minLength: 0
-                })
-                .autocomplete( "instance" )._renderItem = function( ul, disease ) {
-                    return $( "<li>" )
-                    .append( `<div> ${disease.label} </div> <div class='text-muted'> ${disease.desc.substring(0,70)}...</div><div class='dropdown-divider'></div>` )
-                    .appendTo( ul );
-                };
-            });
-            
-        });
-    });
-
-    $('#geneticDisorderName').keyup(e=>{
-        const diseaseQuery = $(e.target).val();
-
-        var settings = {
-            "url": `http://www.healthos.co/api/v1/autocomplete/diseases/${diseaseQuery}`,
-            "method": "GET",
-            "timeout": 0,
-            "headers": {
-                "Authorization": `Bearer ${accessToken}`
-            },
-        };
-
-        $.ajax(settings).done(function (response) {
-            console.log(response);
-
-            const suggestions_json = response.filter(disease => disease.disease_cat.includes('Genetic diseases') );
-
-            let suggestions=[];
-            for(let i=0;i<suggestions_json.length;i++){
-                suggestions.push({
-                    label:suggestions_json[i].disease_name,
-                    desc:suggestions_json[i].disease_info
-                });
-            }
-
-            console.log(suggestions);
-            $(function(){
-
-                $( "#geneticDisorderName" ).autocomplete({
-                    source: suggestions,
-                    minLength: 0
-                })
-                .autocomplete( "instance" )._renderItem = function( ul, disease ) {
-                    return $( "<li>" )
-                    .append( `<div> ${disease.label} </div> <div class='text-muted'> ${disease.desc.substring(0,70)}...</div><div class='dropdown-divider'></div>` )
-                    .appendTo( ul );
-                };
-            });
-            
-        });
-    });
-    
-});
-
-
-
-
-
 $('#allergyCheck').click(e=>{
     $('#allergyName').slideToggle();
 })
@@ -141,3 +9,148 @@ $('#disabilityCheck').click(e=>{
 $('#geneticDisorderCheck').click(e=>{
     $('#geneticDisorderName').slideToggle();
 })
+
+
+$(function () {
+    function split(val) {
+        return val.split(/,\s*/);
+    }
+
+    function extractLast(term) {
+        return split(term).pop();
+    }
+
+    $("#allergyName")
+        // don't navigate away from the field on tab when selecting an item
+        .on("keydown", function (event) {
+            if (event.keyCode === $.ui.keyCode.TAB &&
+                $(this).autocomplete("instance").menu.active) {
+                event.preventDefault();
+            }
+        })
+        .autocomplete({
+            source: function (request, response) {
+                $.getJSON("/diseases/allergies", {
+                    term: extractLast(request.term)
+                }, response);
+            },
+            search: function () {
+                // custom minLength
+                var term = extractLast(this.value);
+                if (term.length > 0) {
+                    return true;
+                }
+            },
+            focus: function () {
+                // prevent value inserted on focus
+                return false;
+            },
+            select: function (event, ui) {
+                var terms = split(this.value);
+                // remove the current input
+                terms.pop();
+                // add the selected item
+                terms.push(ui.item.value);
+                // add placeholder to get the comma-and-space at the end
+                terms.push("");
+                this.value = terms.join(", ");
+                return false;
+            }
+        });
+});
+
+$(function () {
+    function split(val) {
+        return val.split(/,\s*/);
+    }
+
+    function extractLast(term) {
+        return split(term).pop();
+    }
+
+    $("#disabilityName")
+        // don't navigate away from the field on tab when selecting an item
+        .on("keydown", function (event) {
+            if (event.keyCode === $.ui.keyCode.TAB &&
+                $(this).autocomplete("instance").menu.active) {
+                event.preventDefault();
+            }
+        })
+        .autocomplete({
+            source: function (request, response) {
+                $.getJSON("/diseases/disabilities", {
+                    term: extractLast(request.term)
+                }, response);
+            },
+            search: function () {
+                // custom minLength
+                var term = extractLast(this.value);
+                if (term.length > 0) {
+                    return true;
+                }
+            },
+            focus: function () {
+                // prevent value inserted on focus
+                return false;
+            },
+            select: function (event, ui) {
+                var terms = split(this.value);
+                // remove the current input
+                terms.pop();
+                // add the selected item
+                terms.push(ui.item.value);
+                // add placeholder to get the comma-and-space at the end
+                terms.push("");
+                this.value = terms.join(", ");
+                return false;
+            }
+        });
+});
+
+$(function () {
+    function split(val) {
+        return val.split(/,\s*/);
+    }
+
+    function extractLast(term) {
+        return split(term).pop();
+    }
+
+    $("#geneticDisorderName")
+        // don't navigate away from the field on tab when selecting an item
+        .on("keydown", function (event) {
+            if (event.keyCode === $.ui.keyCode.TAB &&
+                $(this).autocomplete("instance").menu.active) {
+                event.preventDefault();
+            }
+        })
+        .autocomplete({
+            source: function (request, response) {
+                $.getJSON("/diseases/geneticDisorders", {
+                    term: extractLast(request.term)
+                }, response);
+            },
+            search: function () {
+                // custom minLength
+                var term = extractLast(this.value);
+                if (term.length > 0) {
+                    return true;
+                }
+            },
+            focus: function () {
+                // prevent value inserted on focus
+                return false;
+            },
+            select: function (event, ui) {
+                var terms = split(this.value);
+                // remove the current input
+                terms.pop();
+                // add the selected item
+                terms.push(ui.item.value);
+                // add placeholder to get the comma-and-space at the end
+                terms.push("");
+                this.value = terms.join(", ");
+                return false;
+            }
+        });
+});

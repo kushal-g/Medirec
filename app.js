@@ -117,24 +117,58 @@ const userSchema=new mongoose.Schema({
 });
 
 userSchema.plugin(passportLocalMongoose);
+
 //--------------------------------------------------------
 //-------------------SCHEMA HOOKS-------------------------
 //--------------------------------------------------------
 
-userSchema.post("updateOne",function(doc,next){
+/* userSchema.post("updateOne",function(doc,next){
+    console.log(this.getUpdate());
     if('medical_rec.ancestral_geneticDisorders' in this.getUpdate()){
         console.log("Ancestral Genetic Disorder updated")
-        //update the family tree
+        this.findOne((err,user)=>{
+            console.log(user);
+            if(err){
+                console.log(err);
+            }else{
+                 //update the family tree
+                console.log()
+                
+            }
+        })
+        
     }
-    if('medical_rec.geneticDisorders' in this.getUpdate()){
-        console.log("Genetic Disorders Updated")
-         //update the family tree
+    else if('$addToSet' in this.getUpdate()){
+        if('medical_rec.geneticDisorders.names' in this.getUpdate().$addToSet){
+            this.findOne((err,user)=>{
+                console.log(user);
+                if(err){
+                    console.log(err);
+                }
+                else if(user.medical_rec.geneticDisorders.approved){
+                    console.log("Genetic Disorder updated");
+                    //update the family tree
+                }
+            })
+        }
+    }
+    else if('medical_rec.geneticDisorders.approved' in this.getUpdate()){
+        if(this.getUpdate()["medical_rec.geneticDisorders.approved"]){
+            console.log("Genetic Disorder approved");
+            this.findOne((err,user)=>{
+                
+                if(err){
+                    console.log(err);
+                }else{
+                     //update the family tree
+                }
+            })
+        }
     }
     next();
-})
+}) */
 
 const User = mongoose.model('userAccount',userSchema);
-
 
 
 
@@ -262,7 +296,7 @@ passport.deserializeUser(function(id, done) { //gets id from cookie and then use
 });
 
 //--------------------------------------------------------
-//---------------------FUNCTIONS--------------------------
+//---------------FUNCTIONS AND PROMISES-------------------
 //--------------------------------------------------------
 
 const generateAccessToken = () =>{
@@ -310,9 +344,14 @@ const findParentAndUpdate=(parentUsername,childID)=>{
         });
     })
 }
+
+
 //--------------------------------------------------------
 //--------------------GET REQUESTS------------------------
 //--------------------------------------------------------
+generateAccessToken().catch(err=>{
+    console.log(err);
+})
 
 app.get("/",(req,res)=>{
     if(req.isAuthenticated()){
@@ -503,42 +542,44 @@ app.post("/socialSignUp",(req,res)=>{
 });
 
 app.post("/addMedicalDetails",(req,res)=>{
-    const allergiesPresent = "allergyCheck" in req.body;
-    const disabiltiesPresent = "disabilityCheck" in req.body;
-    const geneticDisordersPresent = "geneticDisorderCheck" in req.body;
+    console.log(req.body);
+    const allergyPresent = 'allergyCheck' in  req.body;
+    const disabilityPresent = 'disabilityCheck' in req.body;
+    const geneticDisorderPresent = 'geneticDisorderCheck' in req.body;
 
-    User.findById(req.user.id,(err,foundUser)=>{
-        if(err){
-            console.log(err);
-        }else{
-            
-            if(allergiesPresent){
-                foundUser.medical_rec.allergies={
-                    names:req.body.allergyName,
-                    approved:false
-                }
-            }
-
-            if(disabiltiesPresent){
-                foundUser.medical_rec.disabilities={
-                    names:req.body.disabilityName,
-                    approved:false
-                }
-            }
-
-            if(geneticDisordersPresent){
-                foundUser.medical_rec.geneticDisorders={
-                    names:req.body.geneticDisorderName,
-                    approved:false
-                }
-            }
-
-            foundUser.save(err=>{
-                if(err){console.log(err)}
-                else{res.redirect("/settings")};
-            })
-        }
-    })
+    if(allergyPresent){
+        
+        const allergies = _.trim(req.body.allergyName,", ").split(", ");
+        console.log(allergies);
+        User.updateOne({_id:req.user.id},{
+            $addToSet:{"medical_rec.allergies.names":{$each:allergies}},
+            "medical_rec.allergies.approved":false
+        },err=>{
+            if(err){console.log(err)}
+        })
+    }
+    if(disabilityPresent){
+        const disabilities = _.trim(req.body.disabilityName,", ").split(", ");
+        console.log(disabilities);
+        User.updateOne({_id:req.user.id},{
+            $addToSet:{"medical_rec.disabilities.names":{$each:disabilities}},
+            "medical_rec.disabilities.approved":false
+        },err=>{
+            if(err){console.log(err)}
+        })
+    }
+    if(geneticDisorderPresent){
+        const geneticDisorders = _.trim(req.body.geneticDisorderName,", ").split(", ");
+        console.log(geneticDisorders);
+        User.updateOne({_id:req.user.id},{
+            $addToSet:{"medical_rec.geneticDisorders.names":{$each:geneticDisorders}},
+            "medical_rec.geneticDisorders.approved":false
+        },err=>{
+            if(err){console.log(err)}
+        })
+    }
+    
+    res.redirect("/addParentDetails");
 });
 
 app.post("/addParentDetails",(req,res)=>{
@@ -566,7 +607,7 @@ app.post("/addParentDetails",(req,res)=>{
                     "medical_rec.ancestral_geneticDisorders":geneticDisordersInFamily
                 },err=>{
                     if(err){console.log(err)}
-                    else{res.render("allSet")}
+                    else{res.redirect("/settings")}
                 })
 
             }).catch(err=>{
@@ -604,7 +645,7 @@ app.post("/addParentDetails",(req,res)=>{
                         "medical_rec.ancestral_geneticDisorders":geneticDisordersInFamily
                     },err=>{
                         if(err){console.log(err)}
-                        else{res.render("allSet")}
+                        else{res.redirect("/settings")}
                     })
 
                 })
@@ -613,7 +654,7 @@ app.post("/addParentDetails",(req,res)=>{
             })
         }
     }else{
-        res.render("allSet");
+        res.redirect("/settings");
     }
     
 });
@@ -630,7 +671,10 @@ app.post("/login",(req,res)=>{
     })
 });
 
-//API CALLS
+//--------------------------------------------------------
+//----------------------API CALLS-------------------------
+//--------------------------------------------------------
+
 app.get("/usercheck",(req,res)=>{
     if(req.query.username!=req.user.username){
         User.findOne({username:req.query.username},(err,foundUser)=>{
@@ -648,6 +692,110 @@ app.get("/usercheck",(req,res)=>{
         res.send(false);
     }
     
+});
+
+app.get("/diseases/allergies", (req, res) => {
+    if (req.query.term != "") {
+        console.log(req.query.term);
+        const options = {
+            url: `http://www.healthos.co/api/v1/autocomplete/diseases/${req.query.term}`,
+            timeout:0,
+            pool:{
+                maxSockets: 100
+            },
+            headers: {
+                Authorization: `Bearer ${healthOSAccessToken}`
+            }
+        }
+        request.get(options, (error, response, body) => {
+            
+            if (error) {
+                console.log(error);
+                res.send("Autocomplete not available");
+            } else {
+                if(response.statusCode==200){
+                    body = JSON.parse(body);
+                    const filteredResponse = body.reduce((acc, disease) => {
+                        if (disease.disease_cat.includes('Immune diseases')) {
+                            acc.push(disease.disease_name.replace(",",""));
+                        }
+                        return acc;
+                    }, []);
+                    console.log(filteredResponse);
+                    res.send(filteredResponse);
+                }
+            }
+        })
+    }
+});
+
+app.get("/diseases/disabilities", (req, res) => {
+    if (req.query.term != "") {
+        console.log(req.query.term);
+        const options = {
+            url: `http://www.healthos.co/api/v1/autocomplete/diseases/${req.query.term}`,
+            timeout:0,
+            pool:{
+                maxSockets: 100
+            },
+            headers: {
+                Authorization: `Bearer ${healthOSAccessToken}`
+            }
+        }
+        request.get(options, (error, response, body) => {
+            console.log(response.statusCode);
+            if (error) {
+                console.log(error);
+                res.send("Autocomplete not available");
+            } else {
+                if(response.statusCode==200){
+                    body = JSON.parse(body);
+                    console.log(body);
+                    const filteredResponse = body.reduce((acc, disease) => {
+                        acc.push(disease.disease_name.replace(",",""));
+                        return acc;
+                    }, []);
+                    console.log(filteredResponse);
+                    res.send(filteredResponse);
+                }
+            }
+        })
+    }
+});
+
+app.get("/diseases/geneticDisorders", (req, res) => {
+    if (req.query.term != "") {
+        console.log(req.query.term);
+        const options = {
+            url: `http://www.healthos.co/api/v1/autocomplete/diseases/${req.query.term}`,
+            timeout:0,
+            pool:{
+                maxSockets: 100
+            },
+            headers: {
+                Authorization: `Bearer ${healthOSAccessToken}`
+            }
+        }
+        request.get(options, (error, response, body) => {
+            console.log(response.statusCode);
+            if (error) {
+                console.log(error);
+                res.send("Autocomplete not available");
+            } else {
+                if(response.statusCode==200){
+                    body = JSON.parse(body);
+                    const filteredResponse = body.reduce((acc, disease) => {
+                        if (disease.disease_cat.includes('Genetic diseases')) {
+                            acc.push(disease.disease_name.replace(",",""));
+                        }
+                        return acc;
+                    }, []);
+                    console.log(filteredResponse);
+                    res.send(filteredResponse);
+                }
+            }
+        })
+    }
 });
 //--------------------------------------------------------
 //----------------------LISTENER--------------------------
@@ -728,16 +876,6 @@ io.on('connection',socket=>{
 //--------------------------------------------------------
 //------------------BOTH ACCOUNTS------------------------
 //--------------------------------------------------------
-
-    //SEND ACCESS TOKEN FOR HEALTHOS 
-    socket.on('sendAccessToken',(data,fn) =>{
-        console.log('Sent request');
-        generateAccessToken().then(generatedToken=>{
-            fn(generatedToken);
-        }).catch(err=>{
-            console.log(err);
-        });
-    });
 
     //POPULATE NOTIFICATIONS
     socket.on('notificationRequest',(loggedInUser,fn)=>{
