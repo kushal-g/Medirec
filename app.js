@@ -12,13 +12,13 @@ const _ = require('lodash');
 const socketio = require("socket.io");
 
 const app=express();
-let healthOSAccessToken;
+//TODO:store session in mongodb
 
 app.use(bodyParser.urlencoded({extended:true})); //adds ability for server to read data recieved from forms
 app.use(express.static(__dirname+'/public')); //serves files in public folder
 app.use('/bower_components',  express.static(__dirname + '/bower_components')); //use bower modules in client side
 app.use(session({   //session to start with these settings
-    secret:process.env.SECRET_STRING,
+    secret:process.env.SECRET_STRING, //used to encrypt session variables
     resave:false,
     saveUninitialized: false,
     cookie : {
@@ -122,23 +122,35 @@ userSchema.plugin(passportLocalMongoose);
 //-------------------SCHEMA HOOKS-------------------------
 //--------------------------------------------------------
 
-/* userSchema.post("updateOne",function(doc,next){
-    console.log(this.getUpdate());
-    if('medical_rec.ancestral_geneticDisorders' in this.getUpdate()){
-        console.log("Ancestral Genetic Disorder updated")
-        this.findOne((err,user)=>{
-            console.log(user);
-            if(err){
-                console.log(err);
-            }else{
-                 //update the family tree
-                console.log()
-                
-            }
-        })
+userSchema.post("updateOne",function(doc,next){
+
+    /* TODO:Cases pending: 1.Genetic disorders are added=> check if approved before putting in tree
+                        2.Genetic disorders are approved => check if updated to true
+                        3.Genetic disorders are deleted => check if approved before putting in tree
+                        4.Genetic disorders are disapproved=> check if updated to false */
+    if('$addToSet' in this.getUpdate()){
+        if('medical_rec.ancestral_geneticDisorders' in this.getUpdate().$addToSet){
+            console.log("Ancestral Genetic Disorder updated")
+            this.findOne((err,user)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                     //update the family tree
+                    user.medical_rec.children.forEach(childID=>{
+                        this.updateOne({_id:childID},{
+                            $addToSet:{'medical_rec.ancestral_geneticDisorders':user.medical_rec.ancestral_geneticDisorders}
+                        },err=>{
+                            if(err){console.log(err)}
+                            else{console.log("updated")}
+                        })
+                    })
+                }
+            })
+        }
+        
         
     }
-    else if('$addToSet' in this.getUpdate()){
+    /* else if('$addToSet' in this.getUpdate()){
         if('medical_rec.geneticDisorders.names' in this.getUpdate().$addToSet){
             this.findOne((err,user)=>{
                 console.log(user);
@@ -164,9 +176,9 @@ userSchema.plugin(passportLocalMongoose);
                 }
             })
         }
-    }
+    } */
     next();
-}) */
+})
 
 const User = mongoose.model('userAccount',userSchema);
 
@@ -322,9 +334,8 @@ const generateAccessToken = () =>{
             }else{
                 if(response.statusCode == 200){
                     const body_json = JSON.parse(body);
-                    healthOSAccessToken = body_json.access_token;
-                    console.log(healthOSAccessToken);
-                    resolve(healthOSAccessToken);
+                    console.log(body_json.access_token);
+                    resolve(body_json.access_token);
                 }else{
                     reject(response);
                 }                
@@ -345,13 +356,15 @@ const findParentAndUpdate=(parentUsername,childID)=>{
     })
 }
 
+//TODO: Add a function to check for medical history of logged in user. Call when asked by either type of account
+//TODO: Add a function to check the orders of logged in user. Call when asked by either type of account
+//TODO: Add a function to check the reminders of logged in user. Call when asked by either type of account.
+
 
 //--------------------------------------------------------
 //--------------------GET REQUESTS------------------------
 //--------------------------------------------------------
-generateAccessToken().catch(err=>{
-    console.log(err);
-})
+
 
 app.get("/",(req,res)=>{
     if(req.isAuthenticated()){
@@ -363,7 +376,13 @@ app.get("/",(req,res)=>{
 
 
 app.get("/signup",(req,res)=>{
-    res.render("signUpPage");
+    if(!req.isAuthenticated()){
+        req.session.signupProcess=true;
+        res.render("signUpPage");
+    }else{
+        res.redirect("/");
+    }
+    
 });
 
 
@@ -377,24 +396,43 @@ app.get("/socialSignUp",(req,res)=>{
 });
 
 app.get("/addMedicalDetails",(req,res)=>{
-    if(req.isAuthenticated()){
-        res.render("medicalDetails",{loggedInAccount:req.user});
+    if(req.session.signupProcess){
+        if(req.isAuthenticated()){
+            generateAccessToken().then(token=>{
+                req.session.accessToken=token;
+            }).catch(err=>{
+                console.log(err);
+            })
+            console.log(req.session.accessToken);
+            res.render("medicalDetails",{loggedInAccount:req.user});
+        }else{
+            res.redirect("/");
+        }
     }else{
         res.redirect("/");
     }
 });
 
 app.get("/addParentDetails",(req,res)=>{
-    if(req.isAuthenticated()){
-        res.render("addParentDetails",{loggedInAccount:req.user});
+    if(req.session.signupProcess){
+        if(req.isAuthenticated()){
+            res.render("addParentDetails",{loggedInAccount:req.user});
+        }else{
+            res.redirect("/");
+        }
     }else{
         res.redirect("/");
     }
+    
 });
 
 app.get("/settings",(req,res)=>{
-    if(req.isAuthenticated()){
-        res.render("settings");
+    if(req.session.signupProcess){
+        if(req.isAuthenticated()){
+            res.render("settings");
+        }else{
+            res.redirect("/");
+        }
     }else{
         res.redirect("/");
     }
@@ -424,7 +462,14 @@ app.get("/logout",(req,res)=>{
 });
 
 app.get("/success",(req,res)=>{
-    res.render("allSet");
+    if(req.session.signupProcess){
+        if(req.isAuthenticated()){
+            res.render("allSet");
+            req.session.signupProcess=false;
+        }
+    }
+    
+    
 });
 
 app.get("/auth/google",
@@ -459,7 +504,24 @@ app.get('/auth/facebook/medirec',
         }
     });
 
-
+app.get("/docacc/userid/:userID",(req,res)=>{
+    if(req.isAuthenticated()){
+        if(req.user.doc_acc){
+            const patientID = req.params.userID;
+            User.findOne({_id:patientID},(err,foundUser)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    res.render("patientPage",{patient:foundUser});
+                }
+            })
+        }else{
+            res.redirect("/");
+        }
+    }else{
+        res.redirect("/");
+    }
+})
 
 //--------------------------------------------------------
 //-------------------POST REQUESTS------------------------
@@ -593,7 +655,6 @@ app.post("/addParentDetails",(req,res)=>{
             findParentAndUpdate(req.body.parent1Username,req.user.id).then(parent=>{
 
                 //inserts all genetical disorders and ancestral genetical disorders in an array
-                //TODO: test if this works when the fields are absent
                 geneticDisordersInFamily.push(parent.medical_rec.ancestral_geneticDisorders);
                 if(parent.medical_rec.geneticDisorders.approved){
                     geneticDisordersInFamily.push(parent.medical_rec.geneticDisorders.names)
@@ -604,7 +665,7 @@ app.post("/addParentDetails",(req,res)=>{
                 //saves the parent in user's data and make ancestral genetic disorder data field equal to new array
                 User.updateOne({_id:req.user.id},{
                     "medical_rec.parent1Username":req.body.parent1Username,
-                    "medical_rec.ancestral_geneticDisorders":geneticDisordersInFamily
+                    $addToSet:{"medical_rec.ancestral_geneticDisorders":geneticDisordersInFamily}
                 },err=>{
                     if(err){console.log(err)}
                     else{res.redirect("/settings")}
@@ -642,7 +703,7 @@ app.post("/addParentDetails",(req,res)=>{
                     User.updateOne({_id:req.user.id},{
                         "medical_rec.parent1Username":req.body.parent1Username,
                         "medical_rec.parent2Username":req.body.parent2Username,
-                        "medical_rec.ancestral_geneticDisorders":geneticDisordersInFamily
+                        $addToSet:{"medical_rec.ancestral_geneticDisorders":geneticDisordersInFamily}
                     },err=>{
                         if(err){console.log(err)}
                         else{res.redirect("/settings")}
@@ -704,7 +765,7 @@ app.get("/diseases/allergies", (req, res) => {
                 maxSockets: 100
             },
             headers: {
-                Authorization: `Bearer ${healthOSAccessToken}`
+                Authorization: `Bearer ${req.session.accessToken}`
             }
         }
         request.get(options, (error, response, body) => {
@@ -739,7 +800,7 @@ app.get("/diseases/disabilities", (req, res) => {
                 maxSockets: 100
             },
             headers: {
-                Authorization: `Bearer ${healthOSAccessToken}`
+                Authorization: `Bearer ${req.session.accessToken}`
             }
         }
         request.get(options, (error, response, body) => {
@@ -773,7 +834,7 @@ app.get("/diseases/geneticDisorders", (req, res) => {
                 maxSockets: 100
             },
             headers: {
-                Authorization: `Bearer ${healthOSAccessToken}`
+                Authorization: `Bearer ${req.session.accessToken}`
             }
         }
         request.get(options, (error, response, body) => {

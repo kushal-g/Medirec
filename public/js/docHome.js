@@ -84,19 +84,17 @@ socket.emit('sendMyPatients',user_id,patients=>{
 
   let patientsHTML="";
   patients.data.forEach(patient=>{
-    //TODO: Add latest entry heading/ allergies disorders etc in a column
-    patientsHTML += `<a class="list-group-item list-group-item-action px-5">
+    //TODO: Add latest entry heading (if same doctor)
+    patientsHTML += `<a class="list-group-item list-group-item-action px-5 patient-link" href="/docacc/userid/${patient._id}">
     <div class="row">          
         <div class="col">
-        ${patient.profile.firstName} ${patient.profile.lastName}
+          ${patient.profile.firstName} ${patient.profile.lastName} <br>
+          <span class="text-muted">${patient.username}</span>
         </div>
+    </div>
+    
         
-    </div>
-    <div class="row">
-        <div class="col text-muted">
-          ${patient.username}
-        </div>
-    </div>
+
 </a>`
   });
 
@@ -105,24 +103,10 @@ socket.emit('sendMyPatients',user_id,patients=>{
   
   //Patient Mainpulation
 
-  /* socket.emit('sendAccessToken',{},token=>{
-      accessToken = token;
-      console.log(accessToken);
-
-      //autocomplete feature
-      var settings = {
-        "url": "http://www.healthos.co/api/v1/search/diseases/allergic",
-        "method": "GET",
-        "timeout": 0,
-        "headers": {
-          "Authorization": `Bearer ${accessToken}`
-        },
-      };
-      
-      $.ajax(settings).done(function (response) {
-        console.log(response);
-      });
-  }); */
+  $('.patient-link').click(e=>{
+    console.log(e.currentTarget);
+    $(e.currentTarget).animate()
+  })
   
 });
 
