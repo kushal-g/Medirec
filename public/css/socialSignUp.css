@@ -9,7 +9,7 @@
 }
 
 
-.nationalityWarning, .IDnoWarning, .maritalStatusWarning, .sexWarning, .phoneNoWarning{
+.nationalityWarning, .IDnoWarning, .maritalStatusWarning, .sexWarning, .phoneNoWarning, .dateWarning{
     color:red;
     display:none;
 }

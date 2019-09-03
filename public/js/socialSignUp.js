@@ -45,6 +45,15 @@ const valid = () =>{
         $('.sexWarning').css("display","none");
     }
     
+    if(validator.isAfter($('#dob').val()))
+    {
+        $('.dateWarning').css("display","inline");
+        valid=false;
+    }
+    else
+    {
+        $('.dateWarning').css("display","none");
+    }
     
     if(!validator.isMobilePhone($('#phoneNo').val()))
     {   

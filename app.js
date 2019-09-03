@@ -40,6 +40,7 @@ mongoose.connect("mongodb://localhost:27017/MedirecDB"); //connects to mongodb
 //--------------------USER SCHEMA-------------------------
 //--------------------------------------------------------
 
+//TODO:Add blood group
 const userSchema=new mongoose.Schema({
     googleID:String,
     facebookID:String,
@@ -64,7 +65,6 @@ const userSchema=new mongoose.Schema({
         IDno:String,
         maritalStatus:String,
         sex:String,
-        disability:String,
         phoneNo: String,
         addrLine1:String,
         addrLine2:String,
@@ -124,10 +124,12 @@ userSchema.plugin(passportLocalMongoose);
 
 userSchema.post("updateOne",function(doc,next){
 
-    /* TODO:Cases pending: 1.Genetic disorders are added=> check if approved before putting in tree
+    /* TODO:Cases pending: 
+                        1.Genetic disorders are added=> check if approved before putting in tree
                         2.Genetic disorders are approved => check if updated to true
                         3.Genetic disorders are deleted => check if approved before putting in tree
                         4.Genetic disorders are disapproved=> check if updated to false */
+
     if('$addToSet' in this.getUpdate()){
         if('medical_rec.ancestral_geneticDisorders' in this.getUpdate().$addToSet){
             console.log("Ancestral Genetic Disorder updated")
@@ -202,6 +204,8 @@ passport.use(new GoogleStrategy({ //creates google strategy
                 console.log(err);
             }else{
                 const googleJSONProfile = JSON.parse(body);            
+                console.log("//body//",body);
+                console.log("",);
                 User.findOne({$or:[{username:profile.emails[0].value},{googleID: profile.id}]},(err,user)=>{
                     if(err){
                         return cb(err);
@@ -214,8 +218,7 @@ passport.use(new GoogleStrategy({ //creates google strategy
                                 
                                 firstName:_.capitalize(profile.name.givenName), 
                                 lastName:_.capitalize(profile.name.familyName),
-                                sex:googleJSONProfile.genders[0].value,
-                                dob:`${googleJSONProfile.birthdays[1].date.year}-${googleJSONProfile.birthdays[1].date.month.toLocaleString('en-US',{minimumIntegerDigits:2})}-${googleJSONProfile.birthdays[1].date.day.toLocaleString('en-US',{minimumIntegerDigits:2})}`
+                                
                             },
                             profile_complete:false
                         });
@@ -268,8 +271,6 @@ passport.use(new FacebookStrategy({ //creates faceboook strategy
                         
                         firstName:_.capitalize(profile._json.first_name),
                         lastName:_.capitalize(profile._json.last_name),
-                        sex:profile._json.gender,
-                        dob:`${birthday_array[2]}-${birthday_array[0]}-${birthday_array[1]}`
                     },
                     profile_complete:false
                 });
@@ -546,6 +547,7 @@ app.post("/settings",(req,res)=>{
 });
 
 app.post("/signup",(req,res)=>{
+    console.log(req.body);
     const newUser = {
         username: req.body.username,
         profile:{
@@ -579,6 +581,7 @@ app.post("/signup",(req,res)=>{
 });
 
 app.post("/socialSignUp",(req,res)=>{
+    req.session.signupProcess=true;
     User.findById(req.user.id,(err,foundUser)=>{
         if(err){
             console.log(err);
@@ -587,6 +590,7 @@ app.post("/socialSignUp",(req,res)=>{
             foundUser.profile.IDno = req.body.IDno;
             foundUser.profile.maritalStatus = req.body.maritalStatus;
             foundUser.profile.sex = req.body.sex;
+            foundUser.profile.dob=req.body.dob;
             foundUser.profile.phoneNo = req.body.phoneNo;
             foundUser.profile.addrLine1 = req.body.addrLine1;
             foundUser.profile.addrLine2 = req.body.addrLine2;
@@ -894,13 +898,13 @@ io.on('connection',socket=>{
     //SEARCH FOR PATIENT
     socket.on('sendSearchResults',(data,fn)=>{
         const names = data.searchQuery.split(" ");
-
+        console.log(data);
         names.forEach((name,index)=>{
             names[index] = _.capitalize(name);
         });
 
         if(names.length==1){
-            User.find({$and:[{_id:{$ne:data.loggedInUser}},{$or:[{"profile.firstName":names[0]},{"profile.lastName":names[0]}]}]},(err,foundAccounts)=>{
+            User.find({$and:[{assigned_doctor_id:{$nin:[data.loggedInUser]}},{_id:{$ne:data.loggedInUser}},{$or:[{"profile.firstName":names[0]},{"profile.lastName":names[0]}]}]},(err,foundAccounts)=>{
                 if(err){
                     console.log(err);
                 }else{
@@ -908,7 +912,7 @@ io.on('connection',socket=>{
                 }
             });
         }else if(names.length=2) {
-            User.find({$and:[{_id:{$ne:data.loggedInUser}},{$or:[{$and:[{"profile.firstName":names[0]},{"profile.lastName":names[1]}]},{$and:[{"profile.firstName":names[1]},{"profile.lastName":names[0]}]}]}]},(err,foundAccounts)=>{
+            User.find({$and:[{assigned_doctor_id:{$nin:[data.loggedInUser]}},{_id:{$ne:data.loggedInUser}},{$or:[{$and:[{"profile.firstName":names[0]},{"profile.lastName":names[1]}]},{$and:[{"profile.firstName":names[1]},{"profile.lastName":names[0]}]}]}]},(err,foundAccounts)=>{
                 if(err){
                     console.log(err);
                 }else{
