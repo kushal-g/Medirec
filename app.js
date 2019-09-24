@@ -103,13 +103,14 @@ const userSchema=new mongoose.Schema({
             entryLoggerName: String,
             entryLoggerUsername: String,
             entryLoggerPhoneNo: String,
-
+            heading: String,
             content:[{
-                heading: String,
-                contentUnderHeading:[{
-                    subHeading:String,
-                    body:String
-                }]
+                subHeading: String,
+                body:String,
+                attachedFile:{
+                    file: Buffer,
+                    fileName: String
+                }
             }]
         }]
     },
@@ -202,10 +203,7 @@ passport.use(new GoogleStrategy({ //creates google strategy
         request({uri:"https://people.googleapis.com/v1/people/me", headers:{Authorization:` Bearer ${accessToken}`},qs:{personFields:"birthdays,genders"}},(err,response,body)=>{
             if(err){
                 console.log(err);
-            }else{
-                const googleJSONProfile = JSON.parse(body);            
-                console.log("//body//",body);
-                console.log("",);
+            }else{           
                 User.findOne({$or:[{username:profile.emails[0].value},{googleID: profile.id}]},(err,user)=>{
                     if(err){
                         return cb(err);
@@ -505,10 +503,10 @@ app.get('/auth/facebook/medirec',
         }
     });
 
-app.get("/docacc/userid/:userID",(req,res)=>{
+app.get("/docacc/getPatient",(req,res)=>{
     if(req.isAuthenticated()){
         if(req.user.doc_acc){
-            const patientID = req.params.userID;
+            const patientID = req.query.userID;
             User.findOne({_id:patientID},(err,foundUser)=>{
                 if(err){
                     console.log(err);
@@ -556,7 +554,7 @@ app.post("/signup",(req,res)=>{
             nationality:_.capitalize(req.body.nationality),
             IDno:req.body.IDno,
             maritalStatus:req.body.maritalStatus,
-            sex:req.body.sex,
+            sex:_.capitalize(req.body.sex),
             phoneNo: req.body.phoneNo,
             addrLine1:req.body.addrLine1,
             addrLine2:req.body.addrLine2,

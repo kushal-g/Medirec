@@ -85,7 +85,7 @@ socket.emit('sendMyPatients',user_id,patients=>{
   let patientsHTML="";
   patients.data.forEach(patient=>{
     //TODO: Add latest entry heading (if same doctor)
-    patientsHTML += `<a class="list-group-item list-group-item-action px-5 patient-link" href="/docacc/userid/${patient._id}">
+    patientsHTML += `<a class="list-group-item list-group-item-action px-5 patient-link" href="/docacc/getPatient/?userID=${patient._id}">
     <div class="row">          
         <div class="col">
           ${patient.profile.firstName} ${patient.profile.lastName} <br>

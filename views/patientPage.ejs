@@ -1,4 +1,29 @@
 <%- include('partials/header',{title:"Patient Information", pageCSS:"/css/patientPage.css"})%>
+<nav class="navbar navbar-expand-md sticky-top navbar-dark">
+        
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#options">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <div class="collapse navbar-collapse justify-content-center" id="options">
+                <ul class="nav navbar-nav mb-3 " role="tablist">
+                    
+                    <li class="nav-item mt-2 mx-4">
+                        <a class="nav-link" data-toggle="pill" href="#newEntry" role="tab">Add new entry</a>
+                    </li>
+                    <li class="nav-item mt-2 mx-4">
+                        <a class="nav-link active" data-toggle="pill" href="#prevEntries" role="tab">Previous Entries</a>
+                    </li>
+                    <li class="nav-item mt-2 mx-4">
+                        <a class="nav-link" data-toggle="pill" href="#biodata" role="tab">Biodata</a>
+                    </li>
+        
+                </ul>
+        </div>
+</nav>
+
+
 <div class="container-fluid p-3">
     <div class="row p-0">
         <div class="col-md-1 p-0">
@@ -7,12 +32,48 @@
             </form>
         </div>
         <div class="col">
-            <h4 class="display-4">
-                <%= patient.profile.firstName %> <%= patient.profile.lastName %>
-            </h4>
+            <div class="row">
+                    <div class="col">
+            
+                            <div class="col">
+                                <h4 class="display-4">
+                                    <%= patient.profile.firstName %> <%= patient.profile.lastName %>
+                                </h4>
+                                <span class="text-muted">
+                                    <%= patient.profile.sex %> / <%= patient.profile.dob%>
+                                </span><br>
+                                <span class="text-muted">
+                                    Blood Group
+                                </span>
+                            </div>
+                    
+                    </div>
+                    <div class="col text-right pr-5 pt-2">
+                        <span class="text-muted">
+                            Last Entry Heading <br>
+                            Last Entry Date <br>
+                            <%= patient.profile.phoneNo %> <br>
+                            <%= patient.username %>
+            
+                        </span>
+                    </div>
+            </div>
+            <div class="row">
+                
+                <div class="tab-content">
+                    <div class="tab-pane fade" id="newEntry" role="tabpanel">
+                        <%- include('partials/newEntry') %>
+                    </div>
+                    <div class="tab-pane fade show active" id="prevEntries" role="tabpanel">Medical Records</div>
+                    <div class="tab-pane fade" id="biodata" role="tabpanel">Your Orders</div>
+                </div>
+
+            </div>
         </div>
+        
     </div>
 </div>
+
 
 
 <%- include('partials/footer',{pageJS:""})%>
