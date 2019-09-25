@@ -399,10 +399,11 @@ app.get("/addMedicalDetails",(req,res)=>{
         if(req.isAuthenticated()){
             generateAccessToken().then(token=>{
                 req.session.accessToken=token;
+                console.log(token);
+                console.log(req.session.accessToken);
             }).catch(err=>{
                 console.log(err);
             })
-            console.log(req.session.accessToken);
             res.render("medicalDetails",{loggedInAccount:req.user});
         }else{
             res.redirect("/");
@@ -722,7 +723,9 @@ app.post("/addParentDetails",(req,res)=>{
     
 });
 
-
+app.post("/newEntry",(req,res)=>{
+    console.log(req.query.userID);
+})
 app.post("/login",(req,res)=>{
     const user = new User({
         username:req.body.username,
@@ -827,6 +830,7 @@ app.get("/diseases/disabilities", (req, res) => {
 });
 
 app.get("/diseases/geneticDisorders", (req, res) => {
+    console.log(req.session.accessToken);
     if (req.query.term != "") {
         console.log(req.query.term);
         const options = {
@@ -843,7 +847,7 @@ app.get("/diseases/geneticDisorders", (req, res) => {
             console.log(response.statusCode);
             if (error) {
                 console.log(error);
-                res.send("Autocomplete not available");
+                res.send(["Autocomplete not available"]);
             } else {
                 if(response.statusCode==200){
                     body = JSON.parse(body);

@@ -61,11 +61,13 @@
             <div class="row">
                 
                 <div class="tab-content">
-                    <div class="tab-pane fade" id="newEntry" role="tabpanel">
-                        <%- include('partials/newEntry') %>
+                    <div class="tab-pane fade  p-4" id="newEntry" role="tabpanel">
+                        <form action="/newEntry/?userID=<%= patient._id %>" method="post">
+                            <%- include('partials/newEntry') %>
+                        </form>
                     </div>
                     <div class="tab-pane fade show active" id="prevEntries" role="tabpanel">Medical Records</div>
-                    <div class="tab-pane fade" id="biodata" role="tabpanel">Your Orders</div>
+                    <div class="tab-pane fade" id="biodata" role="tabpanel">Biodata</div>
                 </div>
 
             </div>
