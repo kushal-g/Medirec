@@ -1,6 +1,6 @@
-<input type="text" class="form-control" placeholder="Heading" required>
-<input type="text" class="form-control mt-2" placeholder="Sub Heading" required>
-<textarea class="form-control mt-2" placeholder="Content" rows="5"required></textarea>
+<input type="text" class="form-control" placeholder="Heading" name="newEntry[heading]" required>
+<input type="text" class="form-control mt-2" placeholder="Sub Heading 1" name="newEntry[0][subHeading]"required>
+<textarea class="form-control mt-2" placeholder="Content" rows="5" name="newEntry[0][content]" required></textarea>
 <div class="form-group">
     <label for="attachedFiles">Attach Files (if any) :</label>
     <input type="file" class="form-control-file btn btn-outline-dark" id="attachedFiles">

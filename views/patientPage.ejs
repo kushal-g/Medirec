@@ -63,7 +63,19 @@
                 <div class="tab-content">
                     <div class="tab-pane fade  p-4" id="newEntry" role="tabpanel">
                         <form action="/newEntry/?userID=<%= patient._id %>" method="post">
-                            <%- include('partials/newEntry') %>
+                            <div class="formFields">
+                                <%- include('partials/newEntry') %>
+                            </div>        
+                            <div class="container-fluid mt-4">
+                                <div class="row">
+                                    <div class="col pl-0">
+                                        <input type="button" class="btn btn-outline-danger btn-block newSubHeadingButton" value="Add another Sub Heading">
+                                    </div>
+                                    <div class="col pr-0">
+                                        <input type="submit" class="btn btn-info btn-block">
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <div class="tab-pane fade show active" id="prevEntries" role="tabpanel">Medical Records</div>
@@ -78,4 +90,4 @@
 
 
 
-<%- include('partials/footer',{pageJS:""})%>
+<%- include('partials/footer',{pageJS:"/js/patientPage.js"})%>

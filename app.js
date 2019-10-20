@@ -34,8 +34,8 @@ mongoose.set('useNewUrlParser', true); //remove deprecation warning
 mongoose.set('useFindAndModify', false); //remove deprecation warning
 mongoose.set('useCreateIndex', true); //remove deprecation warning
 mongoose.connect("mongodb://localhost:27017/MedirecDB"); //connects to mongodb
-
-
+/* mongoose.connect("mongodb://mongodb+srv://kushal:1234@cluster0-pqoo2.mongodb.net/test?retryWrites=true&w=majority:27017/MedirecDB"); //connects to mongodb
+ */
 //--------------------------------------------------------
 //--------------------USER SCHEMA-------------------------
 //--------------------------------------------------------
@@ -724,6 +724,7 @@ app.post("/addParentDetails",(req,res)=>{
 });
 
 app.post("/newEntry",(req,res)=>{
+    console.log(req.body);
     console.log(req.query.userID);
 })
 app.post("/login",(req,res)=>{
